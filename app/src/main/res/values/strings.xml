@@ -7,18 +7,41 @@
   <string name="login_password">请输入用户密码</string>
   <string name="logout">注销</string>
   <string name="login_clear">清除登录信息</string>
-  <string name="title_activity_login">Sign in</string>
 
-  <!-- Strings related to login -->
-  <string name="prompt_email">Email</string>
-  <string name="prompt_password">Password (optional)</string>
-  <string name="action_sign_in">Sign in or register</string>
-  <string name="action_sign_in_short">Sign in</string>
-  <string name="error_invalid_email">This email address is invalid</string>
-  <string name="error_invalid_password">This password is too short</string>
-  <string name="error_incorrect_password">This password is incorrect</string>
-  <string name="error_field_required">This field is required</string>
-  <string name="permission_rationale">"Contacts permissions are needed for providing email
-    completions."
-  </string>
+  <string name="invalid_name_password">用户名或密码错误</string>
+
+
+  <string name="diablo_test_server">http://192.168.0.109:63552/</string>
+  <string name="diablo_production_server">http://120.24.39.174/</string>
+  <string-array name="servers">
+    <item>深圳服务器</item>
+    <item>测试服务器</item>
+  </string-array>
+
+  <string name="btn_loading">等待</string>
+  <string name="login_ok">确认</string>
+  <string name="login_cancel">取消</string>
+  <string name="ok">确认</string>
+  <string name="cancel">取消</string>
+
+
+  <string name="network_unreachable">连接服务器失败，请确认该设备网络连接正常</string>
+  <string name="network_invalid">网络故障，请检查网络连接情况，如网络正常，请注销该用户后重新登录</string>
+  <string name="internal_error">系统内部错误，请重试或联系服务人员</string>
+  <string name="authen_error">操作鉴权失败</string>
+  <string name="database_error">数据库操作失败，请重试或联系服务人员</string>
+
+  <string name="failed_to_get_user_info">获取用户权限信息失败</string>
+  <string name="failed_to_get_employee">获取员工信息失败</string>
+  <string name="failed_to_get_base_setting">获取系统配置信息失败</string>
+  <string name="failed_to_get_retailer">获取客户信息失败</string>
+  <string name="failed_to_get_color">获取颜色信息失败</string>
+  <string name="failed_to_get_size_group">获取尺码组信息失败</string>
+  <string name="failed_to_get_stock">获取库存信息失败</string>
+  <string name="failed_to_get_brand">获取品牌信息失败</string>
+  <string name="failed_to_get_good_type">获取货品类型信息失败</string>
+  <string name="failed_to_get_firm">获取厂商信息失败</string>
+  <string name="failed_to_get_good">获取货品信息失败</string>
+  <string name="failed_to_get_color_kind">获取颜色类型信息失败</string>
+  <string name="failed_to_get_main_dashboard">登录系统主界面失败</string>
 </resources>

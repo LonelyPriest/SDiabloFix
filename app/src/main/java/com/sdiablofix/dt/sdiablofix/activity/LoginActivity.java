@@ -1,350 +1,583 @@
 package com.sdiablofix.dt.sdiablofix.activity;
 
-import static android.Manifest.permission.READ_CONTACTS;
-
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
-import android.app.LoaderManager.LoaderCallbacks;
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
+import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.Spinner;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.sdiablofix.dt.sdiablofix.R;
+import com.sdiablofix.dt.sdiablofix.adapter.OnAdjustDropDownViewListener;
+import com.sdiablofix.dt.sdiablofix.adapter.StringArrayAdapter;
+import com.sdiablofix.dt.sdiablofix.client.AuthenRightClient;
+import com.sdiablofix.dt.sdiablofix.client.BaseSettingClient;
+import com.sdiablofix.dt.sdiablofix.client.EmployeeClient;
+import com.sdiablofix.dt.sdiablofix.client.FirmClient;
+import com.sdiablofix.dt.sdiablofix.client.GoodClient;
+import com.sdiablofix.dt.sdiablofix.client.LoginClient;
+import com.sdiablofix.dt.sdiablofix.client.StockClient;
+import com.sdiablofix.dt.sdiablofix.db.DiabloDBManager;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloBaseSetting;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloBrand;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloColor;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloEmployee;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloFirm;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloMatchStock;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloSizeGroup;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloType;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloUser;
+import com.sdiablofix.dt.sdiablofix.request.MatchStockRequest;
+import com.sdiablofix.dt.sdiablofix.response.LoginResponse;
+import com.sdiablofix.dt.sdiablofix.response.LoginUserInfoResponse;
+import com.sdiablofix.dt.sdiablofix.rest.AuthenRightInterface;
+import com.sdiablofix.dt.sdiablofix.rest.BaseSettingInterface;
+import com.sdiablofix.dt.sdiablofix.rest.EmployeeInterface;
+import com.sdiablofix.dt.sdiablofix.rest.FirmInterface;
+import com.sdiablofix.dt.sdiablofix.rest.GoodInterface;
+import com.sdiablofix.dt.sdiablofix.rest.LoginInterface;
+import com.sdiablofix.dt.sdiablofix.rest.StockInterface;
+import com.sdiablofix.dt.sdiablofix.utils.DiabloEnum;
+import com.sdiablofix.dt.sdiablofix.utils.DiabloError;
+import com.sdiablofix.dt.sdiablofix.utils.DiabloUtils;
 
-import java.util.ArrayList;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
-/**
- * A login screen that offers login via email/password.
- */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
+public class LoginActivity extends AppCompatActivity {
+    private final static String LOG_TAG = "LOGIN:";
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-        "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
+    Button mBtnLogin;
+    TextInputLayout mLoginWrap;
+    TextInputLayout mPasswordWrap;
+    Spinner mViewServer;
+    Context mContext;
 
-    // UI references.
-    private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
+    String mName;
+    String mPassword;
+    String [] mServers;
+
+    // private ProgressDialog mLoadingDialog;
+    private Dialog mLoadingDialog;
+
+    private LoginInterface mFace;
+
+    private final LoginHandler mLoginHandler = new LoginHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
 
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        // init db
+        DiabloDBManager.instance().init(this);
+
+        mContext = this;
+
+        DiabloProfile.instance().setServer(getString(R.string.diablo_production_server));
+        DiabloProfile.instance().setResource(getResources());
+        // mFace = WLoginClient.getClient().create(WLoginInterface.class);
+        // DiabloProfile.instance().setContext(this.getApplicationContext());
+
+        mLoginWrap = (TextInputLayout) findViewById(R.id.login_name_holder);
+        mPasswordWrap = (TextInputLayout) findViewById(R.id.login_password_holder);
+        mViewServer = (Spinner)findViewById(R.id.spinner_select_server);
+
+        // default production server
+        mServers = getResources().getStringArray(R.array.servers);
+        StringArrayAdapter adapter = new StringArrayAdapter(
+            mContext,
+            R.layout.diablo_spinner_item,
+            mServers);
+
+        adapter.setDropDownViewListener(new OnAdjustDropDownViewListener() {
             @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
+            public void setDropDownVerticalOffset() {
+                mViewServer.setDropDownVerticalOffset(mViewServer.getHeight());
+            }
+        });
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mViewServer.setAdapter(adapter);
+
+        mViewServer.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (0 == position) {
+                    DiabloProfile.instance().setServer(getString(R.string.diablo_production_server));
                 }
-                return false;
+                else if (1 == position) {
+                    DiabloProfile.instance().setServer(getString(R.string.diablo_test_server));
+                }
             }
-        });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View view) {
-                attemptLogin();
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
-    }
-
-    private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
+        final DiabloUser user = DiabloDBManager.instance().getFirstLoginUser();
+        if (null != user) {
+            if (null != mLoginWrap.getEditText())
+                mLoginWrap.getEditText().setText(user.getName());
+            if (null != mPasswordWrap.getEditText())
+                mPasswordWrap.getEditText().setText(user.getPassword());
         }
 
-        getLoaderManager().initLoader(0, null, this);
-    }
+        // InputMethodManager im = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        //
+        mBtnLogin = (Button) findViewById(R.id.btn_login);
+        mBtnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (null != mLoginWrap.getEditText()) {
+                    mName = mLoginWrap.getEditText().getText().toString();
+                }
 
-    private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                .setAction(android.R.string.ok, new View.OnClickListener() {
-                    @Override
-                    @TargetApi(Build.VERSION_CODES.M)
-                    public void onClick(View v) {
-                        requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
+                if (null != mPasswordWrap.getEditText()) {
+                    mPassword = mPasswordWrap.getEditText().getText().toString();
+                }
+
+                if (mName.trim().equals("")) {
+                    if (null != mLoginWrap.getEditText()) {
+                        mLoginWrap.getEditText().setError("请输入用户名");
                     }
-                });
-        } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        }
-        return false;
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
-    }
-
-
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
-    private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
-
-        // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
-        }
-    }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
-    }
-
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                else if (mPassword.trim().equals("")) {
+                    if (null != mPasswordWrap.getEditText()) {
+                        mPasswordWrap.getEditText().setError("请输入用户密码");
+                    }
                 }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-    }
+                else {
+                    // login
+                    mBtnLogin.setClickable(false);
+                    LoginClient.resetClient();
+                    mFace = LoginClient.getClient().create(LoginInterface.class);
+                    Call<LoginResponse> call = mFace.login(mName, mPassword, DiabloEnum.TABLET, DiabloEnum.DIABLO_FALSE);
+                    call.enqueue(new Callback<LoginResponse>() {
+                        @Override
+                        public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                            LoginResponse body = response.body();
+                            Integer code = body.getCode();
+                            switch (code){
+                                case 0:
+                                    startLogin(user, body.getToken());
+                                    break;
+                                default:
+                                    loginError(code);
+                                    break;
+                            }
+                        }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-            // Retrieve data rows for the device user's 'profile' contact.
-            Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-            // Select only email addresses.
-            ContactsContract.Contacts.Data.MIMETYPE +
-                " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-            .CONTENT_ITEM_TYPE},
-
-            // Show primary email addresses first. Note that there won't be
-            // a primary email address if the user hasn't specified one.
-            ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-            new ArrayAdapter<>(LoginActivity.this,
-                android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
-    }
-
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-            ContactsContract.CommonDataKinds.Email.ADDRESS,
-            ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+                        @Override
+                        public void onFailure(Call<LoginResponse> call, Throwable t) {
+                            mBtnLogin.setClickable(true);
+                            loginError(9009);
+                        }
+                    });
                 }
             }
+        });
+    }
 
-            // TODO: register the new account here.
-            return true;
+    private void startLogin(DiabloUser user, String token) {
+       DiabloProfile.instance().setToken(token);
+        if (null == user) {
+            DiabloDBManager.instance().addUser(mName, mPassword);
         }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
+        else {
+            if(!user.getName().equals(mName)){
+                DiabloDBManager.instance().addUser(mName, mPassword);
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                if (!user.getPassword().equals(mPassword)) {
+                    DiabloDBManager.instance().updateUser(mName, mPassword);
+                }
             }
         }
 
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
+        mLoadingDialog = DiabloUtils.createLoadingDialog(mContext);
+        mLoadingDialog.show();
+        getLoginUserInfo();
+    }
+
+    public void gotoMain(){
+        DiabloDBManager.instance().close();
+        Intent intent = new Intent(mContext, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
+        mLoadingDialog.dismiss();
+    }
+
+    public void loginError(Integer code) {
+        loginError(code, null);
+    }
+
+    public void loginError(Integer code, final LoginListener listener){
+        if (null != mLoadingDialog){
+            mLoadingDialog.dismiss();
         }
+
+        mBtnLogin.setClickable(true);
+
+        String error = DiabloError.getError(code);
+        new MaterialDialog.Builder(mContext)
+            .title(R.string.user_login)
+            .content(error)
+            // .contentColor(mContext.getResources().getColor(R.color.colorPrimaryDark))
+            .positiveText(getString(R.string.login_ok))
+            .positiveColor(ContextCompat.getColor(mContext, R.color.colorPrimaryDark))
+            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                @Override
+                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                    if (null != listener) {
+                        listener.onLogin();
+                    }
+                }
+            })
+            .negativeText(getString(R.string.login_cancel))
+            .negativeColor(ContextCompat.getColor(mContext, R.color.colorGray))
+            .onNegative(new MaterialDialog.SingleButtonCallback() {
+                @Override
+                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                    dialog.dismiss();
+                }
+            })
+            .show();
+    }
+
+    @Override
+    public void onBackPressed() {
+
+    }
+
+    private void getLoginUserInfo(){
+        // RightClient.resetClient();
+        AuthenRightInterface rightInterface = AuthenRightClient.getClient().create(AuthenRightInterface.class);
+        Call<LoginUserInfoResponse> rightCall = rightInterface.getLoginUserInfo(DiabloProfile.instance().getToken());
+
+        rightCall.enqueue(new Callback<LoginUserInfoResponse>() {
+            @Override
+            public void onResponse(Call<LoginUserInfoResponse> call, Response<LoginUserInfoResponse> response) {
+                Log.d(LOG_TAG, "success to get login information");
+                LoginUserInfoResponse user = response.body();
+                DiabloProfile.instance().setLoginEmployee(user.getLoginEmployee());
+                DiabloProfile.instance().setLoginFirm(user.getLoginFirm());
+                DiabloProfile.instance().setLoginType(user.getLoginType());
+                DiabloProfile.instance().setLoginRetailer(user.getLoginRetailer());
+                DiabloProfile.instance().setLoginShop(user.getLoginShop());
+                DiabloProfile.instance().setLoginShops(user.getShops());
+                DiabloProfile.instance().setLoginRights(user.getRights());
+                DiabloProfile.instance().initLoginUser();
+
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 10;
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onFailure(Call<LoginUserInfoResponse> call, Throwable t) {
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 11;
+                message.sendToTarget();
+            }
+        });
+    }
+
+    private void getEmployee(){
+        // EmployeeClient.resetClient();
+        EmployeeInterface face = EmployeeClient.getClient().create(EmployeeInterface.class);
+        Call<List<DiabloEmployee>> call = face.listEmployee(DiabloProfile.instance().getToken());
+        call.enqueue(new Callback<List<DiabloEmployee>>() {
+            @Override
+            public void onResponse(Call<List<DiabloEmployee>> call, Response<List<DiabloEmployee>> response) {
+                Log.d(LOG_TAG, "success to get employee");
+                DiabloProfile.instance().setEmployees(response.body());
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 30;
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onFailure(Call<List<DiabloEmployee>> call, Throwable t) {
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 31;
+                message.sendToTarget();
+            }
+        });
+    }
+
+    private void getBaseSetting(){
+        BaseSettingInterface face = BaseSettingClient.getClient().create(BaseSettingInterface.class);
+        Call<List<DiabloBaseSetting>> call = face.listBaseSetting(DiabloProfile.instance().getToken());
+        call.enqueue(new Callback<List<DiabloBaseSetting>>() {
+            @Override
+            public void onResponse(Call<List<DiabloBaseSetting>> call, Response<List<DiabloBaseSetting>> response) {
+                Log.d(LOG_TAG, "success to get base setting");
+                DiabloProfile.instance().setBaseSettings(response.body());
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 40;
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onFailure(Call<List<DiabloBaseSetting>> call, Throwable t) {
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 41;
+                message.sendToTarget();
+            }
+        });
+    }
+
+    private void getColor(){
+        // WGoodClient.resetClient();
+        GoodInterface face = GoodClient.getClient().create(GoodInterface.class);
+        Call<List<DiabloColor>> call = face.listColor(DiabloProfile.instance().getToken());
+        call.enqueue(new Callback<List<DiabloColor>>() {
+            @Override
+            public void onResponse(Call<List<DiabloColor>> call, Response<List<DiabloColor>> response) {
+                Log.d(LOG_TAG, "success to get color");
+                DiabloProfile.instance().setColors(response.body());
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 50;
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onFailure(Call<List<DiabloColor>> call, Throwable t) {
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 51;
+                message.sendToTarget();
+            }
+        });
+    }
+
+    private void getSizeGroup(){
+        // WGoodClient.resetClient();
+        GoodInterface face = GoodClient.getClient().create(GoodInterface.class);
+        Call<List<DiabloSizeGroup>> call = face.listSizeGroup(DiabloProfile.instance().getToken());
+        call.enqueue(new Callback<List<DiabloSizeGroup>>() {
+            @Override
+            public void onResponse(Call<List<DiabloSizeGroup>> call, Response<List<DiabloSizeGroup>> response) {
+                Log.d(LOG_TAG, "success to get size group");
+                DiabloProfile.instance().setSizeGroups(response.body());
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 60;
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onFailure(Call<List<DiabloSizeGroup>> call, Throwable t) {
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 61;
+                message.sendToTarget();
+            }
+        });
+    }
+
+    private void getAllMatchStock(){
+        // StockClient.resetClient();
+        StockInterface face = StockClient.getClient().create(StockInterface.class);
+        Integer loginShop = DiabloProfile.instance().getLoginShop();
+        Call<List<DiabloMatchStock>> call = face.matchAllStock(
+            DiabloProfile.instance().getToken(),
+            new MatchStockRequest(loginShop, DiabloEnum.USE_REPO));
+        call.enqueue(new Callback<List<DiabloMatchStock>>() {
+            @Override
+            public void onResponse(Call<List<DiabloMatchStock>> call, Response<List<DiabloMatchStock>> response) {
+                Log.d(LOG_TAG, "success to get match stock");
+                DiabloProfile.instance().setMatchStocks(response.body());
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 70;
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onFailure(Call<List<DiabloMatchStock>> call, Throwable t) {
+                Log.d(LOG_TAG, "failed to get match stock");
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 71;
+                message.sendToTarget();
+            }
+        });
+    }
+
+    private void getBrand(){
+        // WGoodClient.resetClient();
+        GoodInterface face = GoodClient.getClient().create(GoodInterface.class);
+        Call<List<DiabloBrand>> call = face.listBrand(DiabloProfile.instance().getToken());
+        call.enqueue(new Callback<List<DiabloBrand>>() {
+            @Override
+            public void onResponse(Call<List<DiabloBrand>> call, Response<List<DiabloBrand>> response) {
+                Log.d(LOG_TAG, "success to get brand");
+                DiabloProfile.instance().setBrands(response.body());
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 80;
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onFailure(Call<List<DiabloBrand>> call, Throwable t) {
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 81;
+                message.sendToTarget();
+            }
+        });
+    }
+
+    private void getType(){
+        // WGoodClient.resetClient();
+        GoodInterface face = GoodClient.getClient().create(GoodInterface.class);
+        Call<List<DiabloType>> call = face.listType(DiabloProfile.instance().getToken());
+        call.enqueue(new Callback<List<DiabloType>>() {
+            @Override
+            public void onResponse(Call<List<DiabloType>> call, Response<List<DiabloType>> response) {
+                Log.d(LOG_TAG, "success to get type");
+                DiabloProfile.instance().setDiabloTypes(response.body());
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 90;
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onFailure(Call<List<DiabloType>> call, Throwable t) {
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 91;
+                message.sendToTarget();
+            }
+        });
+    }
+
+    private void getFirm() {
+        // FirmClient.resetClient();
+        FirmInterface face = FirmClient.getClient().create(FirmInterface.class);
+        Call<List<DiabloFirm>> call = face.listFirm(DiabloProfile.instance().getToken());
+        call.enqueue(new Callback<List<DiabloFirm>>() {
+            @Override
+            public void onResponse(Call<List<DiabloFirm>> call, Response<List<DiabloFirm>> response) {
+                Log.d(LOG_TAG, "success to get firm");
+                DiabloProfile.instance().setFirms(response.body());
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 100;
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onFailure(Call<List<DiabloFirm>> call, Throwable t) {
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 101;
+                message.sendToTarget();
+            }
+        });
+    }
+
+    private static class LoginHandler extends Handler {
+        private final WeakReference<LoginActivity> mActivity;
+
+        private LoginHandler(LoginActivity activity) {
+            mActivity = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            LoginActivity activity = mActivity.get();
+            if (activity != null) {
+                // ...
+                switch (msg.what){
+                    case 10: // get employee
+                        activity.getEmployee();
+                        break;
+                    case 11:
+                        activity.loginError(211);
+                        break;
+                    case 20: // get base setting
+                        activity.getBaseSetting();
+                        break;
+                    case 21:
+                        activity.loginError(202);
+                        break;
+                    case 31:
+                        activity.loginError(200);
+                        break;
+                    case 40: // color
+                        activity.getColor();
+                        break;
+                    case 41:
+                        activity.loginError(201);
+                        break;
+                    case 50: // size group
+                        activity.getSizeGroup();
+                        break;
+                    case 51:
+                        activity.loginError(203);
+                    case 60:
+                        activity.getAllMatchStock();
+                        break;
+                    case 61:
+                        activity.loginError(204);
+                        break;
+                    case 70:
+                        activity.getBrand();
+                        break;
+                    case 71:
+                        activity.loginError(205);
+                        break;
+                    case 80:
+                        activity.getType();
+                        break;
+                    case 81:
+                        activity.loginError(206);
+                        break;
+                    case 90:
+                        activity.getFirm();
+                        break;
+                    case 91:
+                        activity.loginError(207);
+                        break;
+                    case 101:
+                        activity.loginError(208);
+                        break;
+                    case 111:
+                        activity.loginError(209);
+                        break;
+                    case 120:
+                        activity.gotoMain();
+                        break;
+                    case 121:
+                        activity.loginError(210);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // DiabloDBManager.instance().close();
+    }
+
+    private interface LoginListener {
+        void onLogin();
     }
 }
-

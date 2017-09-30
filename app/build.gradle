@@ -33,6 +33,11 @@ dependencies {
   compile 'com.android.support:design:25.1.1'
   compile 'com.afollestad.material-dialogs:core:0.9.3.0'
 
+
+  compile 'com.github.promeg:tinypinyin:2.0.3'
+  compile 'com.github.promeg:tinypinyin-lexicons-android-cncity:2.0.3'
+  compile 'com.github.promeg:tinypinyin-lexicons-java-cncity:2.0.3'
+
   testCompile 'junit:junit:4.12'
   compile files('libs/ScannerInterfa.jar')
 }
