@@ -27,19 +27,16 @@ import com.sdiablofix.dt.sdiablofix.client.EmployeeClient;
 import com.sdiablofix.dt.sdiablofix.client.FirmClient;
 import com.sdiablofix.dt.sdiablofix.client.GoodClient;
 import com.sdiablofix.dt.sdiablofix.client.LoginClient;
-import com.sdiablofix.dt.sdiablofix.client.StockClient;
 import com.sdiablofix.dt.sdiablofix.db.DiabloDBManager;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBaseSetting;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBrand;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloColor;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloEmployee;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloFirm;
-import com.sdiablofix.dt.sdiablofix.entity.DiabloMatchStock;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloSizeGroup;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloType;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloUser;
-import com.sdiablofix.dt.sdiablofix.request.MatchStockRequest;
 import com.sdiablofix.dt.sdiablofix.response.LoginResponse;
 import com.sdiablofix.dt.sdiablofix.response.LoginUserInfoResponse;
 import com.sdiablofix.dt.sdiablofix.rest.AuthenRightInterface;
@@ -48,7 +45,6 @@ import com.sdiablofix.dt.sdiablofix.rest.EmployeeInterface;
 import com.sdiablofix.dt.sdiablofix.rest.FirmInterface;
 import com.sdiablofix.dt.sdiablofix.rest.GoodInterface;
 import com.sdiablofix.dt.sdiablofix.rest.LoginInterface;
-import com.sdiablofix.dt.sdiablofix.rest.StockInterface;
 import com.sdiablofix.dt.sdiablofix.utils.DiabloEnum;
 import com.sdiablofix.dt.sdiablofix.utils.DiabloError;
 import com.sdiablofix.dt.sdiablofix.utils.DiabloUtils;
@@ -79,6 +75,36 @@ public class LoginActivity extends AppCompatActivity {
     private LoginInterface mFace;
 
     private final LoginHandler mLoginHandler = new LoginHandler(this);
+
+    private LoginListener createLoginListener(final DiabloUser user) {
+        return new LoginListener() {
+            @Override
+            public void onLogin() {
+                Call<LoginResponse> call = mFace.login(mName, mPassword, DiabloEnum.TABLET, DiabloEnum.DIABLO_TRUE);
+                call.enqueue(new Callback<LoginResponse>() {
+                    @Override
+                    public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                        LoginResponse body = response.body();
+                        Integer code = body.getCode();
+                        switch (code) {
+                            case 0:
+                                startLogin(user, body.getToken());
+                                break;
+                            default:
+                                loginError(code);
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<LoginResponse> call, Throwable t) {
+                        mBtnLogin.setClickable(true);
+                        loginError(9009);
+                    }
+                });
+            }
+        };
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,12 +183,12 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (mName.trim().equals("")) {
                     if (null != mLoginWrap.getEditText()) {
-                        mLoginWrap.getEditText().setError("请输入用户名");
+                        mLoginWrap.getEditText().setError(getResources().getString(R.string.login_name));
                     }
                 }
                 else if (mPassword.trim().equals("")) {
                     if (null != mPasswordWrap.getEditText()) {
-                        mPasswordWrap.getEditText().setError("请输入用户密码");
+                        mPasswordWrap.getEditText().setError(getResources().getString(R.string.login_password));
                     }
                 }
                 else {
@@ -179,6 +205,12 @@ public class LoginActivity extends AppCompatActivity {
                             switch (code){
                                 case 0:
                                     startLogin(user, body.getToken());
+                                    break;
+                                case 1105:
+                                    loginError(1105, createLoginListener(user));
+                                    break;
+                                case 1106:
+                                    loginError(1106, createLoginListener(user));
                                     break;
                                 default:
                                     loginError(code);
@@ -279,8 +311,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<LoginUserInfoResponse> call, Response<LoginUserInfoResponse> response) {
                 Log.d(LOG_TAG, "success to get login information");
                 LoginUserInfoResponse user = response.body();
-                DiabloProfile.instance().setLoginEmployee(user.getLoginEmployee());
-                DiabloProfile.instance().setLoginFirm(user.getLoginFirm());
                 DiabloProfile.instance().setLoginType(user.getLoginType());
                 DiabloProfile.instance().setLoginRetailer(user.getLoginRetailer());
                 DiabloProfile.instance().setLoginShop(user.getLoginShop());
@@ -312,14 +342,14 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, "success to get employee");
                 DiabloProfile.instance().setEmployees(response.body());
                 Message message = Message.obtain(mLoginHandler);
-                message.what = 30;
+                message.what = 20;
                 message.sendToTarget();
             }
 
             @Override
             public void onFailure(Call<List<DiabloEmployee>> call, Throwable t) {
                 Message message = Message.obtain(mLoginHandler);
-                message.what = 31;
+                message.what = 21;
                 message.sendToTarget();
             }
         });
@@ -393,32 +423,32 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void getAllMatchStock(){
-        // StockClient.resetClient();
-        StockInterface face = StockClient.getClient().create(StockInterface.class);
-        Integer loginShop = DiabloProfile.instance().getLoginShop();
-        Call<List<DiabloMatchStock>> call = face.matchAllStock(
-            DiabloProfile.instance().getToken(),
-            new MatchStockRequest(loginShop, DiabloEnum.USE_REPO));
-        call.enqueue(new Callback<List<DiabloMatchStock>>() {
-            @Override
-            public void onResponse(Call<List<DiabloMatchStock>> call, Response<List<DiabloMatchStock>> response) {
-                Log.d(LOG_TAG, "success to get match stock");
-                DiabloProfile.instance().setMatchStocks(response.body());
-                Message message = Message.obtain(mLoginHandler);
-                message.what = 70;
-                message.sendToTarget();
-            }
-
-            @Override
-            public void onFailure(Call<List<DiabloMatchStock>> call, Throwable t) {
-                Log.d(LOG_TAG, "failed to get match stock");
-                Message message = Message.obtain(mLoginHandler);
-                message.what = 71;
-                message.sendToTarget();
-            }
-        });
-    }
+//    private void getAllMatchStock(){
+//        // StockClient.resetClient();
+//        StockInterface face = StockClient.getClient().create(StockInterface.class);
+//        Integer loginShop = DiabloProfile.instance().getLoginShop();
+//        Call<List<DiabloMatchStock>> call = face.matchAllStock(
+//            DiabloProfile.instance().getToken(),
+//            new MatchStockRequest(loginShop, DiabloEnum.USE_REPO));
+//        call.enqueue(new Callback<List<DiabloMatchStock>>() {
+//            @Override
+//            public void onResponse(Call<List<DiabloMatchStock>> call, Response<List<DiabloMatchStock>> response) {
+//                Log.d(LOG_TAG, "success to get match stock");
+//                DiabloProfile.instance().setMatchStocks(response.body());
+//                Message message = Message.obtain(mLoginHandler);
+//                message.what = 70;
+//                message.sendToTarget();
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<DiabloMatchStock>> call, Throwable t) {
+//                Log.d(LOG_TAG, "failed to get match stock");
+//                Message message = Message.obtain(mLoginHandler);
+//                message.what = 71;
+//                message.sendToTarget();
+//            }
+//        });
+//    }
 
     private void getBrand(){
         // WGoodClient.resetClient();
@@ -505,64 +535,56 @@ public class LoginActivity extends AppCompatActivity {
                     case 10: // get employee
                         activity.getEmployee();
                         break;
-                    case 11:
-                        activity.loginError(211);
-                        break;
                     case 20: // get base setting
                         activity.getBaseSetting();
-                        break;
-                    case 21:
-                        activity.loginError(202);
-                        break;
-                    case 31:
-                        activity.loginError(200);
                         break;
                     case 40: // color
                         activity.getColor();
                         break;
-                    case 41:
-                        activity.loginError(201);
-                        break;
                     case 50: // size group
                         activity.getSizeGroup();
                         break;
-                    case 51:
-                        activity.loginError(203);
-                    case 60:
-                        activity.getAllMatchStock();
-                        break;
-                    case 61:
-                        activity.loginError(204);
-                        break;
-                    case 70:
+//                    case 60: // all stocks
+//                        activity.getAllMatchStock();
+//                        break;
+                    case 60: // brand
                         activity.getBrand();
                         break;
-                    case 71:
-                        activity.loginError(205);
-                        break;
-                    case 80:
+                    case 80: // stock type
                         activity.getType();
                         break;
-                    case 81:
-                        activity.loginError(206);
-                        break;
-                    case 90:
+                    case 90: // firm
                         activity.getFirm();
                         break;
-                    case 91:
-                        activity.loginError(207);
-                        break;
-                    case 101:
-                        activity.loginError(208);
-                        break;
-                    case 111:
-                        activity.loginError(209);
-                        break;
-                    case 120:
+                    case 100: //
                         activity.gotoMain();
                         break;
-                    case 121:
-                        activity.loginError(210);
+
+                    case 11: // failed to get user data
+                        activity.loginError(211);
+                        break;
+                    case 21: // failed to get employee
+                        activity.loginError(200);
+                        break;
+                    case 41: // failed to get base setting
+                        activity.loginError(201);
+                        break;
+                    case 51: // failed to get color
+                        activity.loginError(203);
+                    case 61: // failed to get size group
+                        activity.loginError(204);
+                        break;
+//                    case 71: // failed to get match stock
+//                        activity.loginError(205);
+//                        break;
+                    case 81: // failed to get brand
+                        activity.loginError(206);
+                        break;
+                    case 91: // failed to get type
+                        activity.loginError(207);
+                        break;
+                    case 101: // failed to get firm
+                        activity.loginError(208);
                         break;
                     default:
                         break;
