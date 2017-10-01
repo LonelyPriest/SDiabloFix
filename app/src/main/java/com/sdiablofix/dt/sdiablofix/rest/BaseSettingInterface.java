@@ -2,6 +2,7 @@ package com.sdiablofix.dt.sdiablofix.rest;
 
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBaseSetting;
 import com.sdiablofix.dt.sdiablofix.request.LogoutRequest;
+import com.sdiablofix.dt.sdiablofix.response.Response;
 
 import java.util.List;
 
@@ -20,5 +21,5 @@ public interface BaseSettingInterface {
     Call<List<DiabloBaseSetting>> listBaseSetting(@Header("cookie") String token);
 
     @POST("destroy_login_user")
-    Call<DiabloBaseSetting> logout(@Header("cookie") String token, @Body LogoutRequest request);
+    Call<Response> logout(@Header("cookie") String token, @Body LogoutRequest request);
 }

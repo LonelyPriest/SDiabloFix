@@ -5,5 +5,46 @@
               android:orientation="vertical"
              tools:context=".fragment.StockFix">
 
+    <android.support.v7.widget.AppCompatSpinner
+        android:id="@+id/fix_select_shop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dialog"
+        style="@style/Widget.AppCompat.Spinner.Underlined">
+    </android.support.v7.widget.AppCompatSpinner>
+
+    <android.support.v7.widget.AppCompatAutoCompleteTextView
+        android:id="@+id/fix_select_firm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/please_input_firm"
+        android:maxLines="1"/>
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:gravity="center_vertical">
+    <EditText
+        android:id="@+id/fix_barcode"
+        android:hint="@string/please_input_barcode"
+        android:inputType="number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+  <ScrollView
+      android:id="@+id/t_stock_fix_scroll"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="10dp">
+    <TableLayout
+        android:id="@+id/t_stock_fix"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </TableLayout>
+  </ScrollView>
+
 
 </LinearLayout>
