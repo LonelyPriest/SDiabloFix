@@ -16,6 +16,19 @@
     <item>测试服务器</item>
   </string-array>
 
+  <string-array name="nav_item_activity_titles">
+    <item>盘点</item>
+    <item>采购</item>
+    <item>批售</item>
+    <item>批退</item>
+  </string-array>
+
+  <!--menu-->
+  <string name="title_stock_fix">盘点</string>
+  <string name="title_stock_in">采购</string>
+  <string name="title_sale_in">批售</string>
+  <string name="title_sale_out">批退</string>
+
   <string name="btn_loading">等待</string>
   <string name="login_ok">确认</string>
   <string name="login_cancel">取消</string>
@@ -48,4 +61,10 @@
   <string name="failed_to_get_good">获取货品信息失败</string>
   <string name="failed_to_get_color_kind">获取颜色类型信息失败</string>
   <string name="failed_to_get_main_dashboard">登录系统主界面失败</string>
+  <string name="title_activity_main">MainActivity</string>
+
+  <!-- TODO: Remove or change this placeholder text -->
+  <string name="hello_blank_fragment">Hello blank fragment</string>
+  <string name="building">建设中&#8230;</string>
+
 </resources>

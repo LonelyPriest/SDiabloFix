@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <item
+      android:id="@+id/nav_stock_fix"
+      android:icon="@drawable/ic_bubble_chart_black_24dp"
+      android:title="@string/title_stock_fix"/>
+
+  <item
+      android:id="@+id/nav_stock_in"
+      android:icon="@drawable/ic_dashboard_black_24dp"
+      android:title="@string/title_stock_in"/>
+
+  <item
+      android:id="@+id/nav_sale_in"
+      android:icon="@drawable/ic_add_shopping_cart_black_24dp"
+      android:title="@string/title_sale_in"/>
+
+  <item
+      android:id="@+id/nav_sale_out"
+      android:icon="@drawable/ic_remove_shopping_cart_black_24dp"
+      android:title="@string/title_sale_out"/>
+
+</menu>
