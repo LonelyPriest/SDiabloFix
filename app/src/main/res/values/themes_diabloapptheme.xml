@@ -7,7 +7,6 @@
   <style name="DiabloAppTheme" parent="@style/_DiabloAppTheme"/>
 
   <style name="_DiabloAppTheme" parent="Theme.AppCompat.Light">
-
     <item name="android:editTextStyle">@style/EditTextDiabloAppTheme</item>
 
     <item name="android:textColorHighlight">#9933b5e5</item>
@@ -42,6 +41,16 @@
 
     <item name="android:spinnerItemStyle">@style/SpinnerItemDiabloAppTheme</item>
 
+    <!--<item name="actionBarStyle">@style/DiabloActionBar</item>-->
   </style>
+
+  <!--<style name="DiabloActionBar" parent="Theme.AppCompat.DayNight.DarkActionBar">-->
+    <!--<item name="background">@color/darkMagenta</item>-->
+    <!--<item name="android:titleTextStyle">@style/DiabloActionBarTitleText</item>-->
+  <!--</style>-->
+
+  <!--<style name="DiabloActionBarTitleText" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">-->
+    <!--<item name="android:textColor">@color/black</item>-->
+  <!--</style>-->
 
 </resources>

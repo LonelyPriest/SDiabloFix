@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/stock_fix_save"
+        android:icon="@drawable/ic_file_download_black_24dp"
+        android:title="@string/save"
+        app:showAsAction="ifRoom|withText"/>
+
+    <!--<item-->
+        <!--android:id="@+id/stock_fix_setting"-->
+        <!--android:icon="@drawable/ic_settings_black_24dp"-->
+        <!--android:title="@string/setting"-->
+        <!--app:showAsAction="ifRoom|withText"/>-->
+
+  <group android:checkableBehavior="single">
+    <item android:title="@string/setting">
+      <menu>
+        <item
+            android:id="@+id/fix_select_shop"
+            android:icon="@drawable/ic_local_airport_black_24dp"
+            android:title="@string/select_shop"
+            app:showAsAction="ifRoom|withText"/>
+        <item
+            android:id="@+id/fix_select_firm"
+            android:icon="@drawable/ic_landscape_black_24dp"
+            android:title="@string/select_firm"
+            app:showAsAction="ifRoom|withText"/>
+
+        <item
+            android:id="@+id/fix_logout"
+            android:icon="@drawable/ic_directions_bike_black_24dp"
+            android:title="@string/logout"
+            app:showAsAction="ifRoom|withText"/>
+      </menu>
+    </item>
+  </group>
+</menu>

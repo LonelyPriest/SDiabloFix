@@ -6,6 +6,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -46,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
         init();
 
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         mActivityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
         mNavTagMap.put(0, new NavigationTag(0, DiabloEnum.TAG_STOCK_FIX));
         mNavTagMap.put(1, new NavigationTag(1, DiabloEnum.TAG_STOCK_IN));
@@ -60,19 +65,15 @@ public class MainActivity extends AppCompatActivity {
             .addItem(createBottomNavigationItem(R.drawable.ic_dashboard_black_24dp, R.string.title_stock_in))
             .addItem(createBottomNavigationItem(R.drawable.ic_add_shopping_cart_black_24dp, R.string.title_sale_in))
             .addItem(createBottomNavigationItem(R.drawable.ic_remove_shopping_cart_black_24dp, R.string.title_sale_out))
-            .addItem(createBottomNavigationItem(R.drawable.ic_directions_bike_black_24dp, R.string.title_logout))
+            // .addItem(createBottomNavigationItem(R.drawable.ic_directions_bike_black_24dp, R.string.title_logout))
             .setFirstSelectedPosition(0)
             .initialise();
 
         bar.setTabSelectedListener(new BottomNavigationBar.OnTabSelectedListener() {
             @Override
             public void onTabSelected(int position) {
-                if (4 == position) {
-                    logout();
-                } else {
-                    selectMenuItem(position);
-                    loadFragment();
-                }
+                selectMenuItem(position);
+                loadFragment();
             }
 
             @Override
@@ -159,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void logout() {
+    public void logout() {
         BaseSettingInterface face = BaseSettingClient.getClient().create(BaseSettingInterface.class);
         Call<Response> call = face.logout(
             DiabloProfile.instance().getToken(), new LogoutRequest("destroy_login_user"));

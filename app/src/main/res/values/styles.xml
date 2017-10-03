@@ -27,7 +27,6 @@
 
   <style name="DiabloNavigationDrawer">
     <item name="android:textSize">18sp</item>
-    <!--<item name="android:listPreferredItemHeight">40dp</item>-->
   </style>
 
 

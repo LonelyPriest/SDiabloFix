@@ -5,9 +5,6 @@
   <string name="user_login">用户登录</string>
   <string name="login_name">请输入用户名</string>
   <string name="login_password">请输入用户密码</string>
-  <string name="logout">注销</string>
-  <string name="login_clear">清除登录信息</string>
-
 
   <string name="diablo_test_server">http://192.168.0.109:63552/</string>
   <string name="diablo_production_server">http://120.24.39.174/</string>
@@ -23,12 +20,31 @@
     <item>批退</item>
   </string-array>
 
-  <!--menu-->
+  <string-array name="thead_fix">
+    <item>序号</item>
+    <item>条码</item>
+    <item>款号/品牌</item>
+    <item>颜色/尺码</item>
+  </string-array>
+
+  <string name="order_id">序号</string>
+  <string name="barcode">条码</string>
+  <string name="style_number_brand">款号/品牌</string>
+  <string name="color_size">颜色/尺码</string>
+  <!--bottom bar-->
   <string name="title_stock_fix">盘点</string>
   <string name="title_stock_in">采购</string>
   <string name="title_sale_in">批售</string>
   <string name="title_sale_out">批退</string>
-  <string name="title_logout">注销</string>
+
+  <!--action bar-->
+  <string name="save">保存</string>
+  <string name="setting">设置</string>
+
+  <string name="select_shop">店铺</string>
+  <string name="select_firm">厂商</string>
+  <string name="logout">注销</string>
+  <string name="login_clear">清除登录信息</string>
 
   <string name="btn_loading">等待</string>
   <string name="login_ok">确认</string>
@@ -37,7 +53,7 @@
   <string name="cancel">取消</string>
 
   <!--suggestion-->
-  <string name="please_input_firm">请输入厂商</string>
+  <string name="please_input_firm">厂商，默认为空</string>
   <string name="please_input_barcode">请输入条码</string>
 
   <string name="invalid_name_password">用户名或密码错误</string>
@@ -66,8 +82,6 @@
   <string name="failed_to_get_color_kind">获取颜色类型信息失败</string>
   <string name="failed_to_get_main_dashboard">登录系统主界面失败</string>
 
-  <!-- TODO: Remove or change this placeholder text -->
-  <string name="hello_blank_fragment">Hello blank fragment</string>
   <string name="building">建设中&#8230;</string>
 
 </resources>

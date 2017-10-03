@@ -23,4 +23,5 @@
   <color name="deepPink">#FF1493</color>
   <color name="yellowLight">#FFFFCC</color>
   <color name="pinkLight">#FFCCFF</color>
+  <color name="white">#FFFFFF</color>
 </resources>
