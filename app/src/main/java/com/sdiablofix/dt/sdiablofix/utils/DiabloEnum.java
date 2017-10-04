@@ -27,6 +27,11 @@ public class DiabloEnum {
     public static final String  EMPTY_STRING = "";
 
     public static final long DAY_SECONDS = 86400;
+    public static final Integer DIABLO_BARCODE_LENGTH_OF_COLOR_SIZE = 5;
+
+    public static final String DIABLO_CONFIG_YES = "1";
+    public static final String DIABLO_CONFIG_NO  = "0";
+    public static final String SETTING_AUTO_BARCODE = "bcode_auto";
 
     //tag
     public static final String TAG_STOCK_FIX = "stockFix";

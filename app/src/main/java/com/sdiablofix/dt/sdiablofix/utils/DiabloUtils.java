@@ -10,6 +10,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.sdiablofix.dt.sdiablofix.R;
@@ -49,6 +50,45 @@ public class DiabloUtils {
         } catch (Exception e){
             return 0f;
         }
+    }
+
+
+    public static void makeToast(Context context, int stringId) {
+        Toast.makeText(context, context.getResources().getString(stringId), Toast.LENGTH_SHORT).show();
+    }
+
+    public static void makeToast(Context context, String msg) {
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void makeToast(Context context, Integer value, int lengthLong){
+        Toast toast = Toast.makeText(context, toString(value), lengthLong);
+        toast.show();
+    }
+
+    public static void makeToast(Context context, String value, int lengthLong){
+        Toast toast = Toast.makeText(context, value, lengthLong);
+        toast.show();
+    }
+
+    public static void makeToast(Context context, Float value, int lengthLong) {
+        Toast toast = Toast.makeText(context, toString(value), lengthLong);
+        toast.show();
+    }
+
+
+    public void setError(Context context, Integer titleId, Integer errorCode) {
+        new DiabloAlertDialog(
+            context,
+            context.getResources().getString(titleId),
+            DiabloError.getError(errorCode)).create();
+    }
+
+    public void setError(Context context, Integer titleId, Integer errorCode, String extraError) {
+        new DiabloAlertDialog(
+            context,
+            context.getResources().getString(titleId),
+            DiabloError.getError(errorCode) + extraError).create();
     }
 
 

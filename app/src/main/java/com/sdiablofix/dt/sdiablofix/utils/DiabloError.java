@@ -36,6 +36,7 @@ public class DiabloError {
             mErrors.put(1101, r.getString(R.string.invalid_name_password));
             mErrors.put(9009, r.getString(R.string.network_unreachable));
             mErrors.put(9001, r.getString(R.string.database_error));
+            mErrors.put(9901, r.getString(R.string.empty_barcode_stock));
 
             mErrors.put(1105, r.getString(R.string.login_user_active));
             mErrors.put(1106, r.getString(R.string.login_exceed_user));

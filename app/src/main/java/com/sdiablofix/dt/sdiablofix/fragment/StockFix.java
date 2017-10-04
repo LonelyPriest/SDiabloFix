@@ -11,6 +11,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,21 +22,31 @@ import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.iscandemo.ScannerInerface;
 import com.sdiablofix.dt.sdiablofix.R;
 import com.sdiablofix.dt.sdiablofix.activity.MainActivity;
+import com.sdiablofix.dt.sdiablofix.client.StockClient;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloBarcode;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloBarcodeStock;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloShop;
+import com.sdiablofix.dt.sdiablofix.request.GetStockByBarcodeRequest;
+import com.sdiablofix.dt.sdiablofix.response.GetStockByBarcodeResponse;
+import com.sdiablofix.dt.sdiablofix.rest.StockInterface;
+import com.sdiablofix.dt.sdiablofix.utils.DiabloEnum;
+import com.sdiablofix.dt.sdiablofix.utils.DiabloError;
+import com.sdiablofix.dt.sdiablofix.utils.DiabloUtils;
 
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link StockFix#newInstance} factory method to
- * create an instance of this fragment.
- */
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class StockFix extends Fragment {
+    private final String LOG_TAG = "StockFix:";
     private DiabloShop mCurrentShop;
     private String [] mTitles;
 
@@ -43,8 +54,9 @@ public class StockFix extends Fragment {
     private IntentFilter mScannerResultIntentFilter;
     private BroadcastReceiver mScanReceiver;
 
-
     EditText mBarCodeScanView;
+
+    private DiabloBarcode mBarcode;
 
     public StockFix() {
         // Required empty public constructor
@@ -64,6 +76,13 @@ public class StockFix extends Fragment {
         mCurrentShop = DiabloProfile.instance().getSortShop().get(0);
         mTitles = getResources().getStringArray(R.array.thead_fix);
 
+        String autoBarcode = DiabloProfile.instance().getConfig(
+            DiabloEnum.SETTING_AUTO_BARCODE,
+            DiabloEnum.DIABLO_CONFIG_YES);
+
+
+        mBarcode = new DiabloBarcode(autoBarcode);
+
         ScannerInerface scanner = new ScannerInerface(getContext());
         scanner.open();
         scanner.setOutputMode(1);
@@ -76,6 +95,34 @@ public class StockFix extends Fragment {
                 final String scanResult = intent.getStringExtra("value");
                 mBarCodeScanView.setText(scanResult);
                 mBarCodeScanView.invalidate();
+                // add row
+                mBarcode.correctBarcode(mBarCodeScanView.getText().toString());
+
+                StockInterface face = StockClient.getClient().create(StockInterface.class);
+                Call<GetStockByBarcodeResponse> call = face.getStockByBarcode(
+                    DiabloProfile.instance().getToken(),
+                    new GetStockByBarcodeRequest(mBarcode.getCut(), mCurrentShop.getShop()));
+
+                call.enqueue(new Callback<GetStockByBarcodeResponse>() {
+                    @Override
+                    public void onResponse(final Call<GetStockByBarcodeResponse> call,
+                                           Response<GetStockByBarcodeResponse> response) {
+                        Log.d(LOG_TAG, "success to get stock by barcode");
+                        DiabloBarcodeStock stock = response.body().getBarcodeStock();
+                        if (null == stock.getStyleNumber()) {
+                            DiabloUtils.makeToast(getContext(), DiabloError.getError(9901), Toast.LENGTH_LONG);
+                        } else {
+
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<GetStockByBarcodeResponse> call, Throwable t) {
+                        Log.d(LOG_TAG, "failed to get stock by barcode");
+                        DiabloUtils.makeToast(getContext(), DiabloError.getError(500));
+                    }
+                });
+
             }
         };
     }
@@ -85,29 +132,8 @@ public class StockFix extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_stock_fix, container, false);
         mBarCodeScanView = (EditText)view.findViewById(R.id.fix_barcode);
-        
-        ((TableLayout)view.findViewById(R.id.t_stock_fix_head)).addView(addHead());
-//        Spinner shopSpinner = (Spinner) view.findViewById(R.id.fix_select_shop);
-//        ShopAdapter adapter = new ShopAdapter(
-//            getContext(),
-//            android.R.layout.simple_spinner_item,
-//            DiabloProfile.instance().getSortShop());
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        shopSpinner.setAdapter(adapter);
-//
-//
-//        shopSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
 
+        ((TableLayout)view.findViewById(R.id.t_stock_fix_head)).addView(addHead());
         return view;
     }
 
