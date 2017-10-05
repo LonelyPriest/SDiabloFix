@@ -24,6 +24,8 @@ import com.sdiablofix.dt.sdiablofix.client.LoginClient;
 import com.sdiablofix.dt.sdiablofix.client.StockClient;
 import com.sdiablofix.dt.sdiablofix.db.DiabloDBManager;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
+import com.sdiablofix.dt.sdiablofix.fragment.BatchSaleIn;
+import com.sdiablofix.dt.sdiablofix.fragment.BatchSaleOut;
 import com.sdiablofix.dt.sdiablofix.fragment.StockFix;
 import com.sdiablofix.dt.sdiablofix.fragment.StockIn;
 import com.sdiablofix.dt.sdiablofix.request.LogoutRequest;
@@ -122,10 +124,12 @@ public class MainActivity extends AppCompatActivity {
             else if (mCurrentNavTag.getTitleIndex().equals(1)) {
                 f = new StockIn();
             }
-            else {
-                f = new StockFix();
+            else if (mCurrentNavTag.getTitleIndex().equals(2)) {
+                f = new BatchSaleIn();
             }
-
+            else if (mCurrentNavTag.getTitleIndex().equals(3)) {
+                f = new BatchSaleOut();
+            }
         }
         return f;
     }

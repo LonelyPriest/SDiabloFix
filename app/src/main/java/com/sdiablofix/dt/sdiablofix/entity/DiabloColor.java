@@ -13,6 +13,8 @@ import java.util.List;
 public class DiabloColor extends DiabloEntity{
     @SerializedName("id")
     private Integer colorId;
+    @SerializedName("bcode")
+    private Integer colorBarcode;
     @SerializedName("name")
     private String name;
     @SerializedName("tid")
@@ -55,6 +57,10 @@ public class DiabloColor extends DiabloEntity{
 
     public Integer getTypeId() {
         return typeId;
+    }
+
+    public Integer getColorBarcode() {
+        return colorBarcode;
     }
 
     public boolean includeIn(List<DiabloColor> colors){

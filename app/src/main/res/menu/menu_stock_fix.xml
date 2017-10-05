@@ -7,11 +7,11 @@
         android:title="@string/save"
         app:showAsAction="ifRoom|withText"/>
 
-    <!--<item-->
-        <!--android:id="@+id/stock_fix_setting"-->
-        <!--android:icon="@drawable/ic_settings_black_24dp"-->
-        <!--android:title="@string/setting"-->
-        <!--app:showAsAction="ifRoom|withText"/>-->
+    <item
+        android:id="@+id/stock_fix_draft"
+        android:icon="@drawable/ic_drafts_black_24dp"
+        android:title="@string/draft"
+        app:showAsAction="ifRoom|withText"/>
 
   <group android:checkableBehavior="single">
     <item android:title="@string/setting">

@@ -9,8 +9,14 @@ import com.google.gson.annotations.SerializedName;
 public class DiabloBarcodeStock {
     @SerializedName("id")
     private Integer stockId;
+    @SerializedName("order_id")
+    private Integer orderId;
+
     @SerializedName("bcode")
     private String barcode;
+    @SerializedName("correct_barcode")
+    private String correctBarcode;
+
     @SerializedName("style_number")
     private String styleNumber;
     @SerializedName("brand_id")
@@ -50,6 +56,13 @@ public class DiabloBarcodeStock {
     @SerializedName("type")
     private String type;
 
+    @SerializedName("color")
+    private Integer color;
+    @SerializedName("size")
+    private String size;
+    @SerializedName("fix")
+    private Integer fix;
+
     public Integer getStockId() {
         return stockId;
     }
@@ -58,16 +71,48 @@ public class DiabloBarcodeStock {
         return barcode;
     }
 
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
+
+    public String getCorrectBarcode() {
+        return correctBarcode;
+    }
+
+    public void setCorrectBarcode(String correctBarcode) {
+        this.correctBarcode = correctBarcode;
+    }
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
+
     public String getStyleNumber() {
         return styleNumber;
+    }
+
+    public void setStyleNumber(String styleNumber) {
+        this.styleNumber = styleNumber;
     }
 
     public Integer getBrandId() {
         return brandId;
     }
 
+    public void setBrandId(Integer brandId) {
+        this.brandId = brandId;
+    }
+
     public Integer getTypeId() {
         return typeId;
+    }
+
+    public void setTypeId(Integer typeId) {
+        this.typeId = typeId;
     }
 
     public Integer getSex() {
@@ -78,8 +123,16 @@ public class DiabloBarcodeStock {
         return season;
     }
 
+    public void setSeason(Integer season) {
+        this.season = season;
+    }
+
     public Integer getFirmId() {
         return firmId;
+    }
+
+    public void setFirmId(Integer firmId) {
+        this.firmId = firmId;
     }
 
     public String getsGroup() {
@@ -90,8 +143,16 @@ public class DiabloBarcodeStock {
         return free;
     }
 
+    public void setFree(Integer free) {
+        this.free = free;
+    }
+
     public Integer getYear() {
         return year;
+    }
+
+    public void setYear(Integer year) {
+        this.year = year;
     }
 
     public Integer getPid() {
@@ -108,6 +169,10 @@ public class DiabloBarcodeStock {
 
     public Float getTagPrice() {
         return tagPrice;
+    }
+
+    public void setTagPrice(Float tagPrice) {
+        this.tagPrice = tagPrice;
     }
 
     public Float geteDiscount() {
@@ -132,5 +197,29 @@ public class DiabloBarcodeStock {
 
     public String getType() {
         return type;
+    }
+
+    public Integer getColor() {
+        return color;
+    }
+
+    public void setColor(Integer color) {
+        this.color = color;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public Integer getFix() {
+        return fix;
+    }
+
+    public void setFix(Integer fix) {
+        this.fix = fix;
     }
 }

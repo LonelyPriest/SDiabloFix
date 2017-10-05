@@ -6,10 +6,14 @@ import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.promeg.pinyinhelper.Pinyin;
@@ -92,6 +96,38 @@ public class DiabloUtils {
     }
 
 
+    public static TableRow.LayoutParams createTableRowParams(Float weight){
+        return new TableRow.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, weight);
+    }
+
+    public static TextView addCell(Context context, TableRow row, String value, TableRow.LayoutParams lp){
+        TextView cell = new TextView(context);
+        cell.setLayoutParams(lp);
+        cell.setText(value.trim());
+        cell.setTextSize(16);
+        row.addView(cell);
+        return  cell;
+    }
+
+    public static TextView addCell(Context context, TableRow row, Integer value, TableRow.LayoutParams lp){
+        TextView cell = new TextView(context);
+        cell.setLayoutParams(lp);
+        cell.setText(DiabloUtils.toString(value).trim());
+        cell.setTextSize(16);
+        row.addView(cell);
+        return  cell;
+    }
+
+    public static TextView addCell(Context context, TableRow row, float value, TableRow.LayoutParams lp){
+        TextView cell = new TextView(context);
+        cell.setLayoutParams(lp);
+        cell.setText(DiabloUtils.toString(value).trim());
+        cell.setTextSize(16);
+        row.addView(cell);
+        return  cell;
+    }
+
+
     public static String toPinYinWithFirstCharacter(String chinese) {
         char [] name = chinese.toCharArray();
         String py = DiabloEnum.EMPTY_STRING;
@@ -121,5 +157,12 @@ public class DiabloUtils {
             LinearLayout.LayoutParams.MATCH_PARENT));
 
         return loadingDialog;
+    }
+
+    public static void hiddenKeyboard(Context context, View view){
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+//        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        // ((Activity)context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

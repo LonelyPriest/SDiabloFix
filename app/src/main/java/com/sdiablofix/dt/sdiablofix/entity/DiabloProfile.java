@@ -454,6 +454,19 @@ public class DiabloProfile {
         return null == found ? new DiabloColor() : found;
     }
 
+    public final DiabloColor getColorByBarcode(Integer barcode) {
+        DiabloColor found = null;
+        for (int i = 0; i < mColors.size(); i++) {
+            if (mColors.get(i).getColorBarcode().equals(barcode)){
+                found = mColors.get(i);
+                break;
+            }
+        }
+
+        return null == found ? new DiabloColor() : found;
+    }
+
+
     /**
      * Size Group
      */

@@ -2,6 +2,7 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               tools:context=".fragment.StockFix">
 
@@ -57,16 +58,17 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.8"/>
 
-    <com.beardedhen.androidbootstrap.BootstrapEditText
-        android:id="@+id/fix_stock_amount"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.2"
-        android:focusable="false"
-        android:inputType="number"
-        android:gravity="center_horizontal"
-        android:background="@color/colorPrimaryDark"
-    />
+    <!--<com.beardedhen.androidbootstrap.BootstrapEditText-->
+        <!--android:id="@+id/fix_stock_amount"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="0.2"-->
+        <!--android:focusable="false"-->
+        <!--android:inputType="number"-->
+        <!--android:gravity="center_horizontal"-->
+        <!--app:bootstrapBrand="info"-->
+        <!--android:background="@color/colorPrimaryDark"-->
+    <!--/>-->
 
 
   </LinearLayout>

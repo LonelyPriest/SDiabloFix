@@ -33,6 +33,8 @@ public class DiabloEnum {
     public static final String DIABLO_CONFIG_NO  = "0";
     public static final String SETTING_AUTO_BARCODE = "bcode_auto";
 
+    public static final Integer STOCK_FIX = 99;
+
     //tag
     public static final String TAG_STOCK_FIX = "stockFix";
     public static final String TAG_STOCK_IN = "stockIn";
@@ -44,6 +46,19 @@ public class DiabloEnum {
      * DB table
      */
     public static final String W_USER = "user";
+    public static final String D_FIX = "d_fix";
+
+    public static final String [] DIABLO_SIZE_TO_BARCODE = {
+        "FF",
+        "XS",  "S",   "M",   "L",   "XL",  "2XL", "3XL", "4XL", "5XL", "6XL", "7XL",
+        "0",   "8",   "9",   "10",  "11",  "12",  "13",  "14",  "15",  "16",  "17",
+        "18",  "19",  "20",  "21",  "22",  "23",  "24",  "25",  "26",  "27",  "28",
+        "29",  "30",  "31",  "32",  "33",  "34",  "35",  "36",  "37",  "38",  "39",
+        "40",  "41",  "42",  "43",  "44",  "46",  "48",  "50",  "52",  "54",  "56",
+        "58",  "80",  "90",  "100", "105", "110", "115", "120", "125", "130", "135",
+        "140", "145", "150", "155", "160", "165", "170", "175", "180", "185", "190",
+        "195", "200"
+    };
 
     private DiabloEnum(){
 
