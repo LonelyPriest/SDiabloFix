@@ -13,11 +13,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.Spinner;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.sdiablofix.dt.sdiablofix.R;
 import com.sdiablofix.dt.sdiablofix.adapter.OnAdjustDropDownViewListener;
 import com.sdiablofix.dt.sdiablofix.adapter.StringArrayAdapter;
@@ -59,7 +59,7 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
     private final static String LOG_TAG = "LOGIN:";
 
-    Button mBtnLogin;
+    BootstrapButton mBtnLogin;
     TextInputLayout mLoginWrap;
     TextInputLayout mPasswordWrap;
     Spinner mViewServer;
@@ -169,7 +169,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // InputMethodManager im = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         //
-        mBtnLogin = (Button) findViewById(R.id.btn_login);
+        mBtnLogin = (BootstrapButton) findViewById(R.id.btn_login);
         mBtnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -225,6 +225,19 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     });
                 }
+            }
+        });
+
+        BootstrapButton btnClear = (BootstrapButton) findViewById(R.id.btn_clear_login);
+        btnClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (null != mLoginWrap.getEditText())
+                    mLoginWrap.getEditText().setText("");
+                if (null != mPasswordWrap.getEditText())
+                    mPasswordWrap.getEditText().setText("");
+
+                DiabloDBManager.instance().clearUser();
             }
         });
     }
@@ -311,8 +324,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<LoginUserInfoResponse> call, Response<LoginUserInfoResponse> response) {
                 Log.d(LOG_TAG, "success to get login information");
                 LoginUserInfoResponse user = response.body();
+                DiabloProfile.instance().setLoginEmployee(user.getLoginEmployee());
                 DiabloProfile.instance().setLoginType(user.getLoginType());
-                DiabloProfile.instance().setLoginRetailer(user.getLoginRetailer());
                 DiabloProfile.instance().setLoginShop(user.getLoginShop());
                 DiabloProfile.instance().setLoginShops(user.getShops());
                 DiabloProfile.instance().setLoginRights(user.getRights());

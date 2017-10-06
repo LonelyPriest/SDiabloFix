@@ -61,7 +61,6 @@ public class DiabloProfile {
     private Integer mLoginShop = DiabloEnum.INVALID_INDEX;
     // private Integer mLoginFirm = DiabloEnum.INVALID_INDEX;
     private Integer mLoginEmployee = DiabloEnum.INVALID_INDEX;
-    private Integer mLoginRetailer = DiabloEnum.INVALID_INDEX;
     private Integer mLoginType = DiabloEnum.INVALID_INDEX;
     private List<DiabloRight> mLoginRights;
     private List<DiabloShop> mLoginShops;
@@ -118,7 +117,6 @@ public class DiabloProfile {
         mLoginShop = DiabloEnum.INVALID_INDEX;
         // mLoginFirm = DiabloEnum.INVALID_INDEX;
         mLoginEmployee = DiabloEnum.INVALID_INDEX;
-        mLoginRetailer = DiabloEnum.INVALID_INDEX;
         mLoginType = DiabloEnum.INVALID_INDEX;
         mLoginRights = null;
         mLoginShops = null;
@@ -198,15 +196,7 @@ public class DiabloProfile {
     public void setLoginEmployee(Integer loginEmployee) {
         this.mLoginEmployee = loginEmployee;
     }
-
-    public Integer getLoginRetailer() {
-        return this.mLoginRetailer;
-    }
-
-    public void setLoginRetailer(Integer loginRetailer) {
-        this.mLoginRetailer = loginRetailer;
-    }
-
+    
     public Integer getLoginType() {
         return this.mLoginType;
     }
@@ -265,6 +255,7 @@ public class DiabloProfile {
         setAllRepo();
         setAllBadRepo();
     }
+
 
     // shop without any repo bind and repo only
     private void setAllAvailableShop(){
@@ -341,6 +332,18 @@ public class DiabloProfile {
                 }
             }
         }
+    }
+
+    public DiabloShop getShop(Integer index){
+        DiabloShop shop = null;
+        for ( Integer i = 0; i < mSortShop.size(); i++){
+            if (index.equals(mSortShop.get(i).getShop())){
+                shop = mSortShop.get(i);
+                break;
+            }
+        }
+
+        return shop;
     }
 
     /*

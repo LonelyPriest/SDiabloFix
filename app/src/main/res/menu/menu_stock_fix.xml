@@ -27,6 +27,11 @@
             android:title="@string/select_firm"
             app:showAsAction="ifRoom|withText"/>
 
+        <item android:id="@+id/fix_clear_draft"
+              android:title="@string/clear_draft"
+              android:icon="@drawable/ic_clear_all_black_24dp"
+              app:showAsAction="ifRoom|withText"/>
+
         <item
             android:id="@+id/fix_logout"
             android:icon="@drawable/ic_directions_bike_black_24dp"

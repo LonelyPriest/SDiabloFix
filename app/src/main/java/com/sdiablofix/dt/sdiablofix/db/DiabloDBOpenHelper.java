@@ -57,8 +57,15 @@ public class DiabloDBOpenHelper extends SQLiteOpenHelper {
 
             + ", unique(order_id, shop) ON CONFLICT REPLACE)";
 
+        String fixBase = "create table if not exists fix_base ("
+            + "_id integer primary key autoincrement"
+            + ", shop integer not null"
+            + ", datetime text not null"
+            + ", unique(shop) ON CONFLICT REPLACE)";
+
         db.execSQL(user);
         db.execSQL(fixDetail);
+        db.execSQL(fixBase);
     }
 
     @Override

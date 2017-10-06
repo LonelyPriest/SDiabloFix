@@ -40,12 +40,13 @@
   <!--action bar-->
   <string name="save">保存</string>
   <string name="draft">草稿</string>
+  <string name="clear_draft">清除草稿</string>
   <string name="setting">设置</string>
 
   <string name="select_shop">店铺</string>
   <string name="select_firm">厂商</string>
   <string name="logout">注销</string>
-  <string name="login_clear">清除登录信息</string>
+  <string name="login_clear">清除</string>
 
   <string name="btn_loading">等待</string>
   <string name="login_ok">确认</string>
@@ -53,6 +54,9 @@
   <string name="ok">确认</string>
   <string name="cancel">取消</string>
   <string name="delete">删除</string>
+
+  <string name="stock_fix">库存盘点</string>
+  <string name="success_to_fix_stock">库存盘点成功！！单号：</string>
 
   <!--suggestion-->
   <string name="please_input_firm">厂商，默认为空</string>

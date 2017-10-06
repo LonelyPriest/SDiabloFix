@@ -35,6 +35,9 @@ public class DiabloEnum {
 
     public static final Integer STOCK_FIX = 99;
 
+    public static final Integer SUCCESS = 0;
+    public static final Integer HTTP_OK = 200;
+
     //tag
     public static final String TAG_STOCK_FIX = "stockFix";
     public static final String TAG_STOCK_IN = "stockIn";
@@ -47,6 +50,7 @@ public class DiabloEnum {
      */
     public static final String W_USER = "user";
     public static final String D_FIX = "d_fix";
+    public static final String B_FIX = "fix_base";
 
     public static final String [] DIABLO_SIZE_TO_BARCODE = {
         "FF",

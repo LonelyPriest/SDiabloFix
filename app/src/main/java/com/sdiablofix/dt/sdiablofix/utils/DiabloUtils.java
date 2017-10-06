@@ -19,6 +19,9 @@ import android.widget.Toast;
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.sdiablofix.dt.sdiablofix.R;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
 
 /**
@@ -26,6 +29,14 @@ import java.util.Locale;
  */
 
 public class DiabloUtils {
+    private final static DateFormat mDatetimeFormat
+        = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.CHINA);
+
+    public static String currentDatetime(){
+        Calendar calendar = Calendar.getInstance();
+        return mDatetimeFormat.format(calendar.getTime()).trim();
+    }
+
     public static String toString(Float value){
         if (value == Math.round(value)){
             return format(Locale.CHINA, "%d", Math.round(value));

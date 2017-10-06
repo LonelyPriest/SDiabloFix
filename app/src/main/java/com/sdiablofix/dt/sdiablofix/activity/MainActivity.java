@@ -26,7 +26,7 @@ import com.sdiablofix.dt.sdiablofix.db.DiabloDBManager;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
 import com.sdiablofix.dt.sdiablofix.fragment.BatchSaleIn;
 import com.sdiablofix.dt.sdiablofix.fragment.BatchSaleOut;
-import com.sdiablofix.dt.sdiablofix.fragment.StockFix;
+import com.sdiablofix.dt.sdiablofix.fragment.BatchStockFix;
 import com.sdiablofix.dt.sdiablofix.fragment.StockIn;
 import com.sdiablofix.dt.sdiablofix.request.LogoutRequest;
 import com.sdiablofix.dt.sdiablofix.response.Response;
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         Fragment f = getSupportFragmentManager().findFragmentByTag(mCurrentNavTag.getTag());
         if (f == null) {
             if (mCurrentNavTag.getTitleIndex().equals(0)){
-                f = new StockFix();
+                f = new BatchStockFix();
             }
             else if (mCurrentNavTag.getTitleIndex().equals(1)) {
                 f = new StockIn();

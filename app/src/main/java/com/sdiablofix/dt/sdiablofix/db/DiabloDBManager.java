@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteStatement;
 
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBarcodeStock;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloUser;
+import com.sdiablofix.dt.sdiablofix.request.StockFixRequest;
 import com.sdiablofix.dt.sdiablofix.utils.DiabloEnum;
 import com.sdiablofix.dt.sdiablofix.utils.DiabloUtils;
 
@@ -242,8 +243,7 @@ public class DiabloDBManager {
     public void deleteFixDetail(Integer shop, Integer orderId) {
         mSQLiteDB.beginTransaction();
         try {
-            String sql = "delete from " + DiabloEnum.D_FIX
-                + " where order_id=? and shop=?";
+            String sql = "delete from " + DiabloEnum.D_FIX + " where order_id=? and shop=?";
             SQLiteStatement s = mSQLiteDB.compileStatement(sql);
             s.bindString(1, DiabloUtils.toString(orderId));
             s.bindString(2, DiabloUtils.toString(shop));
@@ -254,6 +254,101 @@ public class DiabloDBManager {
             mSQLiteDB.endTransaction();
         }
     }
+
+
+    public void addFixBase(Integer shop) {
+        ContentValues v = new ContentValues();
+        v.put("shop", shop);
+        v.put("datetime", DiabloUtils.currentDatetime());
+        mSQLiteDB.insert(DiabloEnum.B_FIX, null, v);
+    }
+
+    public void updateFixBase(Integer shop) {
+        mSQLiteDB.beginTransaction();
+        try {
+            String sql = "update " + DiabloEnum.B_FIX + " set datetime=? where shop=?";
+            SQLiteStatement s = mSQLiteDB.compileStatement(sql);
+            s.bindString(1, DiabloUtils.currentDatetime());
+            s.bindString(2, DiabloUtils.toString(shop));
+            s.execute();
+            s.clearBindings();
+
+            mSQLiteDB.setTransactionSuccessful();
+        } finally {
+            mSQLiteDB.endTransaction();
+        }
+    }
+
+    public StockFixRequest.StockFixBase getFixBase(Integer shop){
+        String [] fields = {"shop", "datetime"};
+        String [] args = {DiabloUtils.toString(shop)};
+        Cursor cursor = mSQLiteDB.query(DiabloEnum.B_FIX, fields, "shop=?", args, null, null, null);
+
+        if (cursor.moveToFirst()){
+            StockFixRequest.StockFixBase base = new StockFixRequest.StockFixBase();
+            base.setShop(cursor.getInt(cursor.getColumnIndex("shop")));
+            base.setDatetime(cursor.getString(cursor.getColumnIndex("datetime")));
+            cursor.close();
+            return base;
+        }
+
+        return null;
+    }
+
+    public void clearFixBase(Integer shop) {
+        mSQLiteDB.beginTransaction();
+        try {
+            String sql = "delete from " + DiabloEnum.B_FIX + "where shop=?";
+            SQLiteStatement s = mSQLiteDB.compileStatement(sql);
+            s.bindString(1, DiabloUtils.toString(shop));
+            s.execute();
+            s.clearBindings();
+
+            mSQLiteDB.setTransactionSuccessful();
+        } finally {
+            mSQLiteDB.endTransaction();
+        }
+    }
+
+    public void clearFixDraft() {
+        mSQLiteDB.beginTransaction();
+        try {
+            String sql0 = "delete from " + DiabloEnum.B_FIX;
+            SQLiteStatement s0 = mSQLiteDB.compileStatement(sql0);
+            s0.execute();
+
+            String sql1 = "delete from " + DiabloEnum.D_FIX;
+            SQLiteStatement s1 = mSQLiteDB.compileStatement(sql1);
+            s1.execute();
+
+            mSQLiteDB.setTransactionSuccessful();
+        } finally {
+            mSQLiteDB.endTransaction();
+        }
+    }
+
+    public void clearFixDraft(Integer shop) {
+        mSQLiteDB.beginTransaction();
+        try {
+            String sql0 = "delete from " + DiabloEnum.B_FIX + " where shop=?";
+            SQLiteStatement s0 = mSQLiteDB.compileStatement(sql0);
+            s0.bindString(1, DiabloUtils.toString(shop));
+            s0.execute();
+            s0.clearBindings();
+
+            String sql1 = "delete from " + DiabloEnum.D_FIX + " where shop=?";
+            SQLiteStatement s1 = mSQLiteDB.compileStatement(sql1);
+            s1.bindString(1, DiabloUtils.toString(shop));
+            s1.execute();
+            s1.clearBindings();
+
+            mSQLiteDB.setTransactionSuccessful();
+        } finally {
+            mSQLiteDB.endTransaction();
+        }
+    }
+
+
 
     synchronized public void close(){
         if (null != mSQLiteDB) {
