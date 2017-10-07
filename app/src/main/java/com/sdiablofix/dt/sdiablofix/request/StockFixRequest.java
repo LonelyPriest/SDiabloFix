@@ -50,10 +50,10 @@ public class StockFixRequest {
         @SerializedName("employee")
         private String employee;
 
-        public void StockFixBase() {
+        public StockFixBase() {
             this.datetime = DiabloUtils.currentDatetime();
         }
-        
+
 
         public void setTotal(Integer total) {
             this.total = total;
@@ -65,6 +65,10 @@ public class StockFixRequest {
 
         public void setDatetime(String datetime) {
             this.datetime = datetime;
+        }
+
+        public String getShortDatetime() {
+            return this.datetime.substring(5);
         }
 
         public void setEmployee(String employee) {

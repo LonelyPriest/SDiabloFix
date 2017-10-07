@@ -9,32 +9,16 @@ import com.google.gson.annotations.SerializedName;
 public class StockFixResponse extends Response {
     @SerializedName("rsn")
     private String rsn;
-    @SerializedName("s_not_db")
-    private Integer stockNotInDB;
-    @SerializedName("s_not_equal_db")
-    private Integer stockNotEqualDB;
-    @SerializedName("s_not_shop")
-    private Integer stockNotShop;
-    @SerializedName("s_not_equal_shop")
-    private Integer stockNotEqualShop;
+//    @SerializedName("s_not_db")
+//    private Integer stockNotInDB;
+//    @SerializedName("s_not_equal_db")
+//    private Integer stockNotEqualDB;
+//    @SerializedName("s_not_shop")
+//    private Integer stockNotShop;
+//    @SerializedName("s_not_equal_shop")
+//    private Integer stockNotEqualShop;
 
     public String getRsn() {
         return rsn;
-    }
-
-    public Integer getStockNotInDB() {
-        return stockNotInDB;
-    }
-
-    public Integer getStockNotEqualDB() {
-        return stockNotEqualDB;
-    }
-
-    public Integer getStockNotShop() {
-        return stockNotShop;
-    }
-
-    public Integer getStockNotEqualShop() {
-        return stockNotEqualShop;
     }
 }

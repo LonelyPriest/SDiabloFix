@@ -13,7 +13,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
@@ -135,7 +137,7 @@ public class BatchStockFix extends Fragment {
                         if (null == stock.getStyleNumber()) {
                             DiabloUtils.makeToast(getContext(), DiabloError.getError(9901), Toast.LENGTH_LONG);
                         } else {
-                            stock.setCorrectBarcode(mBarcode.getCorrent());
+                            stock.setCorrectBarcode(mBarcode.getCorrect());
                             stock.setFix(1);
 
                             // handler
@@ -162,6 +164,16 @@ public class BatchStockFix extends Fragment {
         mStockFixBase = new StockFixRequest.StockFixBase();
         mStockFixBase.setShop(mCurrentShop.getShop());
         mStockFixBase.setEmployee( DiabloProfile.instance().getEmployees().get(0).getNumber());
+        initTitle();
+    }
+
+    private void initTitle() {
+        ActionBar bar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        if (null != bar && null != bar.getTitle()) {
+            bar.setTitle(
+                getResources().getString(R.string.title_stock_fix)
+                    + "(" + mCurrentShop.getName() + "-" + mStockFixBase.getShortDatetime() + ")");
+        }
     }
 
     @Override
@@ -230,17 +242,17 @@ public class BatchStockFix extends Fragment {
                 cell.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
             }
             else if (getResources().getString(R.string.color_size).equals(title)) {
+                Integer colorId = DiabloEnum.DIABLO_FREE;
+                String size = DiabloEnum.DIABLO_FREE_SIZE;
                 if (stock.getFree().equals(DiabloEnum.DIABLO_FREE)) {
                     DiabloUtils.addCell(getContext(), row, "均色/均码", lp);
-                } else {
+                }
+                else {
                     String colorSize = stock.getCorrectBarcode().substring(
                         stock.getBarcode().length(), stock.getCorrectBarcode().length());
                     Integer colorBarcode = DiabloUtils.toInteger(colorSize.substring(0, 3));
                     Integer sizeIndex = DiabloUtils.toInteger(colorSize.substring(3, colorSize.length()));
                     String desc = "";
-
-                    Integer colorId = DiabloEnum.DIABLO_FREE;
-                    String size = DiabloEnum.DIABLO_FREE_SIZE;
                     if (colorBarcode.equals(DiabloEnum.DIABLO_FREE)) {
                         desc += "均色";
                     } else {
@@ -257,12 +269,10 @@ public class BatchStockFix extends Fragment {
                         size = DiabloEnum.DIABLO_SIZE_TO_BARCODE[sizeIndex];
                         desc += size;
                     }
-
-                    stock.setColor(colorId);
-                    stock.setSize(size);
                     DiabloUtils.addCell(getContext(), row, desc, lp);
                 }
-
+                stock.setColor(colorId);
+                stock.setSize(size);
             }
         }
 
@@ -303,6 +313,16 @@ public class BatchStockFix extends Fragment {
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        for (Integer i=0; i<mButtons.size(); i++){
+            Integer key = mButtons.keyAt(i);
+            DiabloButton button = mButtons.get(key);
+            menu.findItem(button.getResId()).setEnabled(button.isEnabled());
+        }
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_stock_fix, menu);
@@ -328,13 +348,14 @@ public class BatchStockFix extends Fragment {
                         dialog.dismiss();
                         mCurrentShop = shops.get(i);
                         mStockFixBase.setShop(mCurrentShop.getShop());
+                        initTitle();
                     }
                 });
                 builder.create().show();
                 break;
             case R.id.stock_fix_save:
+                mBarCodeScanView.setText(null);
                 mStockFixBase.setTotal(mBarcodeStocks.size());
-
                 StockFixRequest request = new StockFixRequest(mStockFixBase);
                 for (DiabloBarcodeStock stock: mBarcodeStocks) {
                     StockFixRequest.StockFix stockFix = new StockFixRequest.StockFix();
@@ -353,10 +374,10 @@ public class BatchStockFix extends Fragment {
                     request.addStock(stockFix);
                 }
 
+                mButtons.get(R.id.stock_fix_save).disable();
                 StockInterface face = StockClient.getClient().create(StockInterface.class);
                 Call<StockFixResponse> call = face.fixStock(DiabloProfile.instance().getToken(), request);
 
-                mButtons.get(R.id.stock_fix_save).disable();
                 call.enqueue(new Callback<StockFixResponse>() {
                     @Override
                     public void onResponse(Call<StockFixResponse> call, Response<StockFixResponse> response) {
@@ -364,15 +385,18 @@ public class BatchStockFix extends Fragment {
                         if ( DiabloEnum.HTTP_OK == response.code() && result.getCode().equals(DiabloEnum.SUCCESS)) {
                             new DiabloAlertDialog(
                                 getContext(),
-                                true,
+                                false,
                                 getResources().getString(R.string.stock_fix),
-                                getContext().getString(R.string.success_to_fix_stock) + result.getRsn(),
+                                getResources().getString(R.string.success_to_fix_stock)
+                                    + result.getRsn()
+                                    + getResources().getString(R.string.query_stock_fix_difference),
                                 new DiabloAlertDialog.OnOkClickListener() {
                                     @Override
                                     public void onOk() {
                                         // clear  draft
                                         DiabloDBManager.instance().clearFixDraft(mCurrentShop.getShop());
                                         init();
+                                        mTable.removeAllViews();
                                     }})
                                 .create();
 
@@ -416,6 +440,8 @@ public class BatchStockFix extends Fragment {
                             StockFixRequest.StockFixBase base = DiabloDBManager.instance().getFixBase(mCurrentShop.getShop());
                             if (null != base) {
                                 mStockFixBase = base;
+                                mStockFixBase.setEmployee( DiabloProfile.instance().getEmployees().get(0).getNumber());
+                                initTitle();
                                 List<DiabloBarcodeStock> stocks = DiabloDBManager.instance().listFixDetail(mCurrentShop.getShop());
                                 if (0 != stocks.size()) {
                                     mTable.removeAllViews();

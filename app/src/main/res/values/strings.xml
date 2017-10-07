@@ -57,6 +57,7 @@
 
   <string name="stock_fix">库存盘点</string>
   <string name="success_to_fix_stock">库存盘点成功！！单号：</string>
+  <string name="query_stock_fix_difference">请在电脑或平板设置上查看库存差异单</string>
 
   <!--suggestion-->
   <string name="please_input_firm">厂商，默认为空</string>

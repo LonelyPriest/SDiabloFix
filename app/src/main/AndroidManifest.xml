@@ -14,9 +14,9 @@
 
   <application
       android:allowBackup="true"
-      android:icon="@mipmap/ic_launcher"
+      android:icon="@mipmap/ic_launcher_bird"
       android:label="@string/app_name"
-      android:roundIcon="@mipmap/ic_launcher_round"
+      android:roundIcon="@mipmap/ic_launcher_bird"
       android:supportsRtl="true"
       android:theme="@style/DiabloAppTheme.NoActionBar">
     <activity
@@ -32,7 +32,9 @@
 
     <activity
         android:name=".activity.MainActivity"
-        android:screenOrientation="portrait">
+        android:screenOrientation="portrait"
+        android:alwaysRetainTaskState="true"
+        android:windowSoftInputMode="stateHidden">
     </activity>
   </application>
 
