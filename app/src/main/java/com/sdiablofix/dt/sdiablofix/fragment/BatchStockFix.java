@@ -375,9 +375,9 @@ public class BatchStockFix extends Fragment {
                 }
 
                 mButtons.get(R.id.stock_fix_save).disable();
+                DiabloUtils.makeToast(getContext(), "操作成功，请等待盘点结果", Toast.LENGTH_LONG);
                 StockInterface face = StockClient.getClient().create(StockInterface.class);
                 Call<StockFixResponse> call = face.fixStock(DiabloProfile.instance().getToken(), request);
-
                 call.enqueue(new Callback<StockFixResponse>() {
                     @Override
                     public void onResponse(Call<StockFixResponse> call, Response<StockFixResponse> response) {
@@ -449,6 +449,7 @@ public class BatchStockFix extends Fragment {
                                     for (DiabloBarcodeStock stock: stocks) {
                                         addRow(stock);
                                     }
+                                    mButtons.get(R.id.stock_fix_save).enable();
                                 }
                             } else {
                                 DiabloUtils.makeToast(getContext(), "店铺对应的草稿不存在，请确认店铺是否选择正确", Toast.LENGTH_LONG);
@@ -468,6 +469,7 @@ public class BatchStockFix extends Fragment {
                         @Override
                         public void onOk() {
                             DiabloDBManager.instance().clearFixDraft();
+                            mButtons.get(R.id.stock_fix_save).disable();
                             DiabloUtils.makeToast(getContext(), "清除草稿成功", Toast.LENGTH_LONG);
                         }
                     }).create();
