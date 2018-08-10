@@ -38,6 +38,7 @@ import com.sdiablofix.dt.sdiablofix.client.StockClient;
 import com.sdiablofix.dt.sdiablofix.db.DiabloDBManager;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBarcode;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBarcodeStock;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloBigType;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloColor;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloShop;
@@ -63,6 +64,7 @@ import retrofit2.Response;
 public class BatchStockFix extends Fragment {
     private final String LOG_TAG = "BatchStockFix:";
     private DiabloShop mCurrentShop;
+    private DiabloBigType mCurrentBigType;
     private String [] mTitles;
 
     /*scanner*/
@@ -92,10 +94,15 @@ public class BatchStockFix extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // europa, carme, ceres
+        // DiabloUtils.playSound(getContext(), R.raw.europa);
+
         setHasOptionsMenu(true);
         getActivity().supportInvalidateOptionsMenu();
 
         mCurrentShop = DiabloProfile.instance().getShop(DiabloProfile.instance().getLoginShop());
+        mCurrentBigType = DiabloProfile.instance().getBigTypes().get(0);
+
         mTitles = getResources().getStringArray(R.array.thead_fix);
 
         String autoBarcode = DiabloProfile.instance().getConfig(
@@ -136,6 +143,8 @@ public class BatchStockFix extends Fragment {
                         DiabloBarcodeStock stock = response.body().getBarcodeStock();
                         if (null == stock.getStyleNumber()) {
                             DiabloUtils.makeToast(getContext(), DiabloError.getError(9901), Toast.LENGTH_LONG);
+                            // play sound
+                            DiabloUtils.playSound(getContext(), R.raw.europa);
                         } else {
                             stock.setCorrectBarcode(mBarcode.getCorrect());
                             stock.setFix(1);
@@ -162,6 +171,7 @@ public class BatchStockFix extends Fragment {
     private void init() {
         mBarcodeStocks = new ArrayList<>();
         mStockFixBase = new StockFixRequest.StockFixBase();
+        mStockFixBase.setBigType(DiabloEnum.INVALID_INDEX);
         mStockFixBase.setShop(mCurrentShop.getShop());
         mStockFixBase.setEmployee( DiabloProfile.instance().getEmployees().get(0).getNumber());
         initTitle();
@@ -331,10 +341,10 @@ public class BatchStockFix extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.fix_select_shop:
+            case R.id.fix_select_shop: {
                 final List<DiabloShop> shops = DiabloProfile.instance().getSortShop();
-                String [] titles = new String[shops.size()];
-                for (int i=0; i< shops.size(); i++) {
+                String[] titles = new String[shops.size()];
+                for (int i = 0; i < shops.size(); i++) {
                     titles[i] = shops.get(i).getName();
                 }
 
@@ -343,16 +353,41 @@ public class BatchStockFix extends Fragment {
                 builder.setTitle(getContext().getResources().getString(R.string.select_shop));
                 builder.setSingleChoiceItems(titles, shops.indexOf(mCurrentShop),
                     new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        dialog.dismiss();
-                        mCurrentShop = shops.get(i);
-                        mStockFixBase.setShop(mCurrentShop.getShop());
-                        initTitle();
-                    }
-                });
+                        @Override
+                        public void onClick(DialogInterface dialog, int i) {
+                            dialog.dismiss();
+                            mCurrentShop = shops.get(i);
+                            mStockFixBase.setShop(mCurrentShop.getShop());
+                            initTitle();
+                        }
+                    });
                 builder.create().show();
-                break;
+            }
+            break;
+            case R.id.fix_select_ctype: {
+                final List<DiabloBigType> bigTypes = DiabloProfile.instance().getBigTypes();
+
+                String[] titles = new String[bigTypes.size()];
+                for (int i = 0; i < bigTypes.size(); i++) {
+                    titles[i] = bigTypes.get(i).getName();
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setIcon(R.drawable.ic_filter_tilt_shift_black_24dp);
+                builder.setTitle(getContext().getResources().getString(R.string.select_good_ctype));
+                builder.setSingleChoiceItems(titles, bigTypes.indexOf(mCurrentBigType),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            mCurrentBigType = bigTypes.get(which);
+                            mStockFixBase.setBigType(mCurrentBigType.getctype());
+                            initTitle();
+                        }
+                    });
+                builder.create().show();
+            }
+            break;
             case R.id.stock_fix_save:
                 mBarCodeScanView.setText(null);
                 mStockFixBase.setTotal(mBarcodeStocks.size());

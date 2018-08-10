@@ -82,6 +82,9 @@ public class DiabloProfile {
     // base settings
     private List<DiabloBaseSetting> mBaseSettings;
 
+    // big type
+    private List<DiabloBigType> mBigTypes = new ArrayList<>();
+
     // color
     private List<DiabloColor> mColors = new ArrayList<>();
 
@@ -136,6 +139,9 @@ public class DiabloProfile {
 
         // base settings
         mBaseSettings.clear();
+
+        // big type
+        mBigTypes.clear();
 
         // color
         mColors.clear();
@@ -266,18 +272,20 @@ public class DiabloProfile {
                 if (!this.mAvailableShopIds.contains(shop.getShop())){
                     if (shop.getShop().equals(this.mLoginShop)){
                         this.mAvailableShopIds.add(0, shop.getShop());
-                    } else {
-                        this.mAvailableShopIds.add(shop.getShop());
-                    }
-                }
-
-                if (!this.mSortAvailableShop.contains(shop)) {
-                    if (shop.getShop().equals(this.mLoginShop)){
                         this.mSortAvailableShop.add(0, shop);
                     } else {
+                        this.mAvailableShopIds.add(shop.getShop());
                         this.mSortAvailableShop.add(shop);
                     }
                 }
+
+//                if (!this.mSortAvailableShop.contains(shop)) {
+//                    if (shop.getShop().equals(this.mLoginShop)){
+//                        this.mSortAvailableShop.add(0, shop);
+//                    } else {
+//                        this.mSortAvailableShop.add(shop);
+//                    }
+//                }
             }
         }
     }
@@ -289,18 +297,20 @@ public class DiabloProfile {
                 if (!this.mShopIds.contains(shop.getShop())){
                     if (shop.getShop().equals(this.mLoginShop)){
                         this.mShopIds.add(0, shop.getShop());
-                    } else {
-                        this.mShopIds.add(shop.getShop());
-                    }
-                }
-
-                if (!this.mSortShop.contains(shop)){
-                    if (shop.getShop().equals(this.mLoginShop)){
                         this.mSortShop.add(0, shop);
                     } else {
+                        this.mShopIds.add(shop.getShop());
                         this.mSortShop.add(shop);
                     }
                 }
+
+//                if (!this.mSortShop.contains(shop)){
+//                    if (shop.getShop().equals(this.mLoginShop)){
+//                        this.mSortShop.add(0, shop);
+//                    } else {
+//                        this.mSortShop.add(shop);
+//                    }
+//                }
             }
         }
     }
@@ -385,6 +395,20 @@ public class DiabloProfile {
 
     public void setBaseSettings(List<DiabloBaseSetting> baseSettings) {
         this.mBaseSettings = baseSettings;
+    }
+
+    public void setBigTypes(List<DiabloBigType> types) {
+        this.mBigTypes.clear();
+        for (DiabloBigType t: types)
+            this.mBigTypes.add(t);
+    }
+
+    public void addBigType(DiabloBigType type) {
+        this.mBigTypes.add(0, type);
+    }
+
+    public List<DiabloBigType> getBigTypes() {
+        return mBigTypes;
     }
 
     public String getConfig(String name, String defaultValue){

@@ -45,6 +45,8 @@ public class StockFixRequest {
         private Integer total;
         @SerializedName("shop")
         private Integer shop;
+        @SerializedName("ctype")
+        private Integer ctype;
         @SerializedName("datetime")
         private String datetime;
         @SerializedName("employee")
@@ -61,6 +63,10 @@ public class StockFixRequest {
 
         public void setShop(Integer shop) {
             this.shop = shop;
+        }
+
+        public void setBigType(Integer ctype) {
+            this.ctype = ctype;
         }
 
         public void setDatetime(String datetime) {

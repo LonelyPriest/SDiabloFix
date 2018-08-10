@@ -4,6 +4,10 @@ import static java.lang.String.format;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,14 +96,14 @@ public class DiabloUtils {
     }
 
 
-    public void setError(Context context, Integer titleId, Integer errorCode) {
+    public static void setError(Context context, Integer titleId, Integer errorCode) {
         new DiabloAlertDialog(
             context,
             context.getResources().getString(titleId),
             DiabloError.getError(errorCode)).create();
     }
 
-    public void setError(Context context, Integer titleId, Integer errorCode, String extraError) {
+    public static void setError(Context context, Integer titleId, Integer errorCode, String extraError) {
         new DiabloAlertDialog(
             context,
             context.getResources().getString(titleId),
@@ -175,5 +179,28 @@ public class DiabloUtils {
 //        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
         // ((Activity)context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+
+    public static void playSound(Context context, int rawId) {
+        SoundPool soundPool;
+        if (Build.VERSION.SDK_INT >= 21) {
+            SoundPool.Builder builder = new SoundPool.Builder();
+            builder.setMaxStreams(1);
+            AudioAttributes.Builder attrBuilder = new AudioAttributes.Builder();
+            attrBuilder.setLegacyStreamType(AudioManager.STREAM_MUSIC);
+            builder.setAudioAttributes(attrBuilder.build());
+            soundPool = builder.build();
+        } else {
+            soundPool = new SoundPool(1, AudioManager.STREAM_SYSTEM, 5);
+        }
+
+        soundPool.load(context, rawId, 1);
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                soundPool.play(1, 1, 1, 0, 0, 1);
+            }
+        });
     }
 }

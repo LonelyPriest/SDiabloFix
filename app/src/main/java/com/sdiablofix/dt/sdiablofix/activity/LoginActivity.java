@@ -29,6 +29,7 @@ import com.sdiablofix.dt.sdiablofix.client.GoodClient;
 import com.sdiablofix.dt.sdiablofix.client.LoginClient;
 import com.sdiablofix.dt.sdiablofix.db.DiabloDBManager;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBaseSetting;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloBigType;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBrand;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloColor;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloEmployee;
@@ -532,6 +533,30 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private void getGoodBigType() {
+        // FirmClient.resetClient();
+        BaseSettingInterface face = BaseSettingClient.getClient().create(BaseSettingInterface.class);
+        Call<List<DiabloBigType>> call = face.listGoodBigType(DiabloProfile.instance().getToken());
+        call.enqueue(new Callback<List<DiabloBigType>>() {
+            @Override
+            public void onResponse(Call<List<DiabloBigType>> call, Response<List<DiabloBigType>> response) {
+                Log.d(LOG_TAG, "success to get firm");
+                DiabloProfile.instance().setBigTypes(response.body());
+                DiabloProfile.instance().addBigType(new DiabloBigType(mContext.getString(R.string.title_none)));
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 110;
+                message.sendToTarget();
+            }
+
+            @Override
+            public void onFailure(Call<List<DiabloBigType>> call, Throwable t) {
+                Message message = Message.obtain(mLoginHandler);
+                message.what = 111;
+                message.sendToTarget();
+            }
+        });
+    }
+
     private static class LoginHandler extends Handler {
         private final WeakReference<LoginActivity> mActivity;
 
@@ -570,6 +595,9 @@ public class LoginActivity extends AppCompatActivity {
                         activity.getFirm();
                         break;
                     case 100: //
+                        activity.getGoodBigType();
+                        break;
+                    case 110:
                         activity.gotoMain();
                         break;
 
@@ -598,6 +626,9 @@ public class LoginActivity extends AppCompatActivity {
                         break;
                     case 101: // failed to get firm
                         activity.loginError(208);
+                        break;
+                    case 111: // failed to get big type
+                        activity.loginError(212);
                         break;
                     default:
                         break;

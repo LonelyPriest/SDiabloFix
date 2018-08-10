@@ -37,6 +37,7 @@ public class DiabloError {
             mErrors.put(9009, r.getString(R.string.network_unreachable));
             mErrors.put(9001, r.getString(R.string.database_error));
             mErrors.put(9901, r.getString(R.string.empty_barcode_stock));
+            mErrors.put(9902, r.getString(R.string.empty_good_big_type));
 
             mErrors.put(1105, r.getString(R.string.login_user_active));
             mErrors.put(1106, r.getString(R.string.login_exceed_user));
@@ -53,7 +54,7 @@ public class DiabloError {
             mErrors.put(208, r.getString(R.string.failed_to_get_firm));
             mErrors.put(210, r.getString(R.string.failed_to_get_color_kind));
             mErrors.put(211, r.getString(R.string.failed_to_get_user_info));
-
+            mErrors.put(212, r.getString(R.string.failed_to_get_big_type));
         }
     }
 
