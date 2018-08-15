@@ -133,7 +133,10 @@ public class BatchStockFix extends Fragment {
                 StockInterface face = StockClient.getClient().create(StockInterface.class);
                 Call<GetStockByBarcodeResponse> call = face.getStockByBarcode(
                     DiabloProfile.instance().getToken(),
-                    new GetStockByBarcodeRequest(mBarcode.getCut(), mCurrentShop.getShop()));
+                    new GetStockByBarcodeRequest(
+                            mBarcode.getCut(),
+                            mCurrentShop.getShop(),
+                            mCurrentBigType.getctype()));
 
                 call.enqueue(new Callback<GetStockByBarcodeResponse>() {
                     @Override

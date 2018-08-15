@@ -9,7 +9,7 @@ import com.sdiablofix.dt.sdiablofix.utils.DiabloEnum;
  */
 
 public class DiabloBigType {
-    @SerializedName("ctype")
+    @SerializedName("id")
     private Integer ctype;
     @SerializedName("name")
     private String name;
