@@ -129,46 +129,49 @@ public class BatchStockFix extends Fragment {
                 mBarCodeScanView.invalidate();
                 // add row
                 mBarcode.correctBarcode(mBarCodeScanView.getText().toString());
-
-                StockInterface face = StockClient.getClient().create(StockInterface.class);
-                Call<GetStockByBarcodeResponse> call = face.getStockByBarcode(
-                    DiabloProfile.instance().getToken(),
-                    new GetStockByBarcodeRequest(
-                            mBarcode.getCut(),
-                            mCurrentShop.getShop(),
-                            mCurrentBigType.getctype()));
-
-                call.enqueue(new Callback<GetStockByBarcodeResponse>() {
-                    @Override
-                    public void onResponse(final Call<GetStockByBarcodeResponse> call,
-                                           Response<GetStockByBarcodeResponse> response) {
-                        Log.d(LOG_TAG, "success to get stock by barcode");
-                        DiabloBarcodeStock stock = response.body().getBarcodeStock();
-                        if (null == stock.getStyleNumber()) {
-                            DiabloUtils.makeToast(getContext(), DiabloError.getError(9901), Toast.LENGTH_LONG);
-                            // play sound
-                            DiabloUtils.playSound(getContext(), R.raw.europa);
-                        } else {
-                            stock.setCorrectBarcode(mBarcode.getCorrect());
-                            stock.setFix(1);
-
-                            // handler
-                            Message message = Message.obtain(mHandler);
-                            message.what = DiabloEnum.STOCK_FIX;
-                            message.obj = stock;
-                            message.sendToTarget();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<GetStockByBarcodeResponse> call, Throwable t) {
-                        Log.d(LOG_TAG, "failed to get stock by barcode");
-                        DiabloUtils.makeToast(getContext(), DiabloError.getError(500));
-                    }
-                });
-
+                start_check();
             }
         };
+    }
+
+    private void start_check() {
+        StockInterface face = StockClient.getClient().create(StockInterface.class);
+        Call<GetStockByBarcodeResponse> call = face.getStockByBarcode(
+            DiabloProfile.instance().getToken(),
+            new GetStockByBarcodeRequest(
+                    mBarcode.getCut(),
+                    mCurrentShop.getShop(),
+                    mCurrentBigType.getctype()));
+
+        call.enqueue(new Callback<GetStockByBarcodeResponse>() {
+            @Override
+            public void onResponse(final Call<GetStockByBarcodeResponse> call,
+                                   Response<GetStockByBarcodeResponse> response) {
+                Log.d(LOG_TAG, "success to get stock by barcode");
+                DiabloBarcodeStock stock = response.body().getBarcodeStock();
+                if (null == stock.getStyleNumber()) {
+                    DiabloUtils.makeToast(getContext(), DiabloError.getError(9901), Toast.LENGTH_LONG);
+                    // play sound
+                    DiabloUtils.playSound(getContext(), R.raw.europa);
+                } else {
+                    stock.setCorrectBarcode(mBarcode.getCorrect());
+                    stock.setFix(1);
+
+                    // handler
+                    Message message = Message.obtain(mHandler);
+                    message.what = DiabloEnum.STOCK_FIX;
+                    message.obj = stock;
+                    message.sendToTarget();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GetStockByBarcodeResponse> call, Throwable t) {
+                Log.d(LOG_TAG, "failed to get stock by barcode");
+                DiabloUtils.makeToast(getContext(), DiabloError.getError(500));
+                DiabloUtils.playSound(getContext(), R.raw.ceres);
+            }
+        });
     }
 
     private void init() {

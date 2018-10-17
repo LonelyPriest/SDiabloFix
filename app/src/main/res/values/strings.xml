@@ -6,7 +6,7 @@
   <string name="login_name">请输入用户名</string>
   <string name="login_password">请输入用户密码</string>
 
-  <string name="diablo_test_server">http://192.168.0.109:63552/</string>
+  <string name="diablo_test_server">http://192.168.0.104:63552/</string>
   <string name="diablo_production_server">http://120.24.39.174/</string>
   <string-array name="servers">
     <item>深圳服务器</item>

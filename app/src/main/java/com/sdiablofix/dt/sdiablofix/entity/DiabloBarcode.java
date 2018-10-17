@@ -35,7 +35,7 @@ public class DiabloBarcode {
             }
             else if (origin.startsWith("01") && origin.length() > 14) {
                 mCorrect = origin.substring(1);
-                mCut = origin.substring(1, origin.length() - DiabloEnum.DIABLO_BARCODE_LENGTH_OF_COLOR_SIZE);
+                mCut = origin.substring(1, origin.length() - DiabloEnum.DIABLO_EXT_BARCODE_LENGTH_OF_COLOR_SIZE);
             } else {
                 mCorrect = origin;
                 mCut = origin;
