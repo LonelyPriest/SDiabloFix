@@ -395,78 +395,88 @@ public class BatchStockFix extends Fragment {
             }
             break;
             case R.id.stock_fix_save:
-                mBarCodeScanView.setText(null);
-                mStockFixBase.setTotal(mBarcodeStocks.size());
-                StockFixRequest request = new StockFixRequest(mStockFixBase);
-                for (DiabloBarcodeStock stock: mBarcodeStocks) {
-                    StockFixRequest.StockFix stockFix = new StockFixRequest.StockFix();
-                    stockFix.setStyleNumber(stock.getStyleNumber());
-                    stockFix.setBrand(stock.getBrandId());
-                    stockFix.setFix(stock.getFix());
-                    stockFix.setColor(stock.getColor());
-                    stockFix.setSize(stock.getSize());
+                new DiabloAlertDialog(
+                    getContext(),
+                    true,
+                    "库存盘点",
+                    "确认要生成盘点差异单吗，确个后将无法在原来基础上继续盘点？",
+                    new DiabloAlertDialog.OnOkClickListener() {
+                        @Override
+                        public void onOk() {
+                            mBarCodeScanView.setText(null);
+                            mStockFixBase.setTotal(mBarcodeStocks.size());
+                            StockFixRequest request = new StockFixRequest(mStockFixBase);
+                            for (DiabloBarcodeStock stock: mBarcodeStocks) {
+                                StockFixRequest.StockFix stockFix = new StockFixRequest.StockFix();
+                                stockFix.setStyleNumber(stock.getStyleNumber());
+                                stockFix.setBrand(stock.getBrandId());
+                                stockFix.setFix(stock.getFix());
+                                stockFix.setColor(stock.getColor());
+                                stockFix.setSize(stock.getSize());
 
-                    stockFix.setType(stock.getTypeId());
-                    stockFix.setFirm(stock.getFirmId());
-                    stockFix.setSeason(stock.getSeason());
-                    stockFix.setYear(stock.getYear());
-                    stockFix.setTagPrice(stock.getTagPrice());
+                                stockFix.setType(stock.getTypeId());
+                                stockFix.setFirm(stock.getFirmId());
+                                stockFix.setSeason(stock.getSeason());
+                                stockFix.setYear(stock.getYear());
+                                stockFix.setTagPrice(stock.getTagPrice());
 
-                    request.addStock(stockFix);
-                }
-
-                mButtons.get(R.id.stock_fix_save).disable();
-                DiabloUtils.makeToast(getContext(), "操作成功，请等待盘点结果", Toast.LENGTH_LONG);
-                StockInterface face = StockClient.getClient().create(StockInterface.class);
-                Call<StockFixResponse> call = face.fixStock(DiabloProfile.instance().getToken(), request);
-                call.enqueue(new Callback<StockFixResponse>() {
-                    @Override
-                    public void onResponse(Call<StockFixResponse> call, Response<StockFixResponse> response) {
-                        StockFixResponse result = response.body();
-                        if ( DiabloEnum.HTTP_OK == response.code() && result.getCode().equals(DiabloEnum.SUCCESS)) {
-                            new DiabloAlertDialog(
-                                getContext(),
-                                false,
-                                getResources().getString(R.string.stock_fix),
-                                getResources().getString(R.string.success_to_fix_stock)
-                                    + result.getRsn()
-                                    + getResources().getString(R.string.query_stock_fix_difference),
-                                new DiabloAlertDialog.OnOkClickListener() {
-                                    @Override
-                                    public void onOk() {
-                                        // clear  draft
-                                        DiabloDBManager.instance().clearFixDraft(mCurrentShop.getShop());
-                                        init();
-                                        mTable.removeAllViews();
-                                    }})
-                                .create();
-
-                        }
-                        else {
-                            mButtons.get(R.id.stock_fix_save).enable();
-                            String error = "";
-                            if (!DiabloEnum.HTTP_OK.equals(response.code())) {
-                                error += "网络故障，HTTP返回码：" + DiabloUtils.toString(response.code());
+                                request.addStock(stockFix);
                             }
-                            if (!DiabloEnum.SUCCESS.equals(result.getCode())) {
-                                error += "盘点失败：" + DiabloError.getError(result.getCode())
-                                    + result.getError();
-                            }
-                            new DiabloAlertDialog(
-                                getContext(),
-                                getResources().getString(R.string.stock_fix), error).create();
-                        }
-                    }
 
-                    @Override
-                    public void onFailure(Call<StockFixResponse> call, Throwable t) {
-                        mButtons.get(R.id.stock_fix_save).enable();
-                        new DiabloAlertDialog(
-                            getContext(),
-                            getResources().getString(R.string.stock_fix),
-                            "盘点失败：" + DiabloError.getError(99)).create();
-                    }
-                });
+                            mButtons.get(R.id.stock_fix_save).disable();
+                            DiabloUtils.makeToast(getContext(), "操作成功，请等待盘点结果", Toast.LENGTH_LONG);
+                            StockInterface face = StockClient.getClient().create(StockInterface.class);
+                            Call<StockFixResponse> call = face.fixStock(DiabloProfile.instance().getToken(), request);
+                            call.enqueue(new Callback<StockFixResponse>() {
+                                @Override
+                                public void onResponse(Call<StockFixResponse> call, Response<StockFixResponse> response) {
+                                    StockFixResponse result = response.body();
+                                    if ( DiabloEnum.HTTP_OK == response.code() && result.getCode().equals(DiabloEnum.SUCCESS)) {
+                                        new DiabloAlertDialog(
+                                            getContext(),
+                                            false,
+                                            getResources().getString(R.string.stock_fix),
+                                            getResources().getString(R.string.success_to_fix_stock)
+                                                + result.getRsn()
+                                                + getResources().getString(R.string.query_stock_fix_difference),
+                                            new DiabloAlertDialog.OnOkClickListener() {
+                                                @Override
+                                                public void onOk() {
+                                                    // clear  draft
+                                                    DiabloDBManager.instance().clearFixDraft(mCurrentShop.getShop());
+                                                    init();
+                                                    mTable.removeAllViews();
+                                                }})
+                                            .create();
+
+                                    }
+                                    else {
+                                        mButtons.get(R.id.stock_fix_save).enable();
+                                        String error = "";
+                                        if (!DiabloEnum.HTTP_OK.equals(response.code())) {
+                                            error += "网络故障，HTTP返回码：" + DiabloUtils.toString(response.code());
+                                        }
+                                        if (!DiabloEnum.SUCCESS.equals(result.getCode())) {
+                                            error += "盘点失败：" + DiabloError.getError(result.getCode())
+                                                + result.getError();
+                                        }
+                                        new DiabloAlertDialog(
+                                            getContext(),
+                                            getResources().getString(R.string.stock_fix), error).create();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<StockFixResponse> call, Throwable t) {
+                                    mButtons.get(R.id.stock_fix_save).enable();
+                                    new DiabloAlertDialog(
+                                        getContext(),
+                                        getResources().getString(R.string.stock_fix),
+                                        "盘点失败：" + DiabloError.getError(99)).create();
+                                }
+                            });
+                        }
+                    }).create();
                 break;
             case R.id.stock_fix_draft:
                 // recover from db
