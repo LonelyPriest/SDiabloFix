@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.hardware.BarcodeScan;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -67,13 +68,22 @@ public class BatchStockFix extends Fragment {
     private DiabloBigType mCurrentBigType;
     private String [] mTitles;
 
-    /*scanner*/
-    private IntentFilter mScannerResultIntentFilter;
-    private BroadcastReceiver mScanReceiver;
+    /*iData scanner*/
+    private ScannerInerface mIDataBarcodeScan;
+    private IntentFilter mIDataScannerResultIntentFilter;
+    private BroadcastReceiver mIDataScanReceiver;
 
-    TableLayout mTable;
+    /*c40 scanner*/
+    private BarcodeScan mC40BarcodeScan;
+    private BroadcastReceiver mC40ScanDataReceiver;
+    private IntentFilter mC40ScanDataIntentFilter;
+    // private MediaPlayer mC40MediaPlayer;
+
+    private char mScannerDevice;
+
+    private TableLayout mTable;
     private TableRow mCurrentRow;
-    EditText mBarCodeScanView;
+    private EditText mBarCodeScanView;
 
     private DiabloBarcode mBarcode;
     private List<DiabloBarcodeStock> mBarcodeStocks;
@@ -116,15 +126,34 @@ public class BatchStockFix extends Fragment {
 
         init();
 
-        ScannerInerface scanner = new ScannerInerface(getContext());
-        scanner.open();
-        scanner.setOutputMode(1);
+        String device = DiabloProfile.instance().getConfig(
+            DiabloEnum.DIABLO_SCANNER_DEVICE, DiabloEnum.DIABLO_DEFAULT_SCANNER_DEVICE);
+        if (device.length() < 9) {
+            mScannerDevice = 48;
+        } else {
+            mScannerDevice = device.charAt(8);
+        }
 
-        mScannerResultIntentFilter = new IntentFilter("android.intent.action.SCANRESULT");
-        mScanReceiver = new BroadcastReceiver() {
+        if (mScannerDevice == 48) {
+            startIDataScanner();
+        } else if (mScannerDevice == 49) {
+            startC40Scanner();
+        }
+
+    }
+
+    private void startIDataScanner() {
+        mIDataBarcodeScan = new ScannerInerface(getContext());
+        // mIDataBarcodeScan.open();
+        // mIDataBarcodeScan.scan_start();
+        mIDataBarcodeScan.setOutputMode(1);
+
+        mIDataScannerResultIntentFilter = new IntentFilter("android.intent.action.SCANRESULT");
+        mIDataScanReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 final String scanResult = intent.getStringExtra("value");
+                // DiabloUtils.playSound(getContext(), R.raw.wire_charging_start);
                 mBarCodeScanView.setText(scanResult);
                 mBarCodeScanView.invalidate();
                 // add row
@@ -133,6 +162,35 @@ public class BatchStockFix extends Fragment {
             }
         };
     }
+
+    private void startC40Scanner() {
+        mC40BarcodeScan = new BarcodeScan(getContext());
+        // mC40BarcodeScan.open();
+        // mC40BarcodeScan.scanning();
+        mC40ScanDataIntentFilter = new IntentFilter();
+        mC40ScanDataIntentFilter.addAction("ACTION_BAR_SCAN");
+
+        mC40ScanDataReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (action.equals("ACTION_BAR_SCAN")) {
+                    String scanResult = intent.getStringExtra("EXTRA_SCAN_DATA");
+                    if (!scanResult.isEmpty()) {
+                        // mC40MediaPlayer.start();
+                        // DiabloUtils.playSound(getContext(), R.raw.wire_charging_start);
+                        mBarCodeScanView.setText(scanResult);
+                        mBarCodeScanView.invalidate();
+
+                        mBarcode.correctBarcode(mBarCodeScanView.getText().toString());
+                        start_check();
+                    }
+                }
+            }
+        };
+    }
+
+
 
     private void start_check() {
         StockInterface face = StockClient.getClient().create(StockInterface.class);
@@ -154,6 +212,7 @@ public class BatchStockFix extends Fragment {
                     // play sound
                     DiabloUtils.playSound(getContext(), R.raw.europa);
                 } else {
+                    DiabloUtils.playSound(getContext(), R.raw.wire_charging_start);
                     stock.setCorrectBarcode(mBarcode.getCorrect());
                     stock.setFix(1);
 
@@ -602,22 +661,55 @@ public class BatchStockFix extends Fragment {
         return super.onContextItemSelected(item);
     }
 
+    public void onScanKeyDown() {
+        if (mScannerDevice == 48) {
+            mIDataBarcodeScan.open();
+            mIDataBarcodeScan.scan_start();
+        }
+        else if (mScannerDevice == 49) {
+            mC40BarcodeScan.open();
+            mC40BarcodeScan.scanning();
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        getContext().registerReceiver(mScanReceiver, mScannerResultIntentFilter);
+        if (mScannerDevice == 48) {
+            getContext().registerReceiver(mIDataScanReceiver, mIDataScannerResultIntentFilter);
+        } else if (mScannerDevice == 49) {
+            getContext().registerReceiver(mC40ScanDataReceiver, mC40ScanDataIntentFilter);
+            // mC40MediaPlayer = MediaPlayer.create(getContext(), R.raw.camera_click);
+            // mC40MediaPlayer.setLooping(false);
+        }
     }
 
     @Override
     public void onPause() {
-        getContext().unregisterReceiver(mScanReceiver);
+        if (mScannerDevice == 48) {
+            if (null != mIDataBarcodeScan) {
+                mIDataBarcodeScan.scan_stop();
+            }
+            getContext().unregisterReceiver(mIDataScanReceiver);
+        } else if (mScannerDevice == 49) {
+            if (null != mC40BarcodeScan) {
+                mC40BarcodeScan.stop();
+            }
+            getContext().unregisterReceiver(mC40ScanDataReceiver);
+            // mC40MediaPlayer.release();
+        }
+
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        mScanReceiver = null;
-        mScannerResultIntentFilter = null;
+        mIDataScanReceiver = null;
+        mIDataScannerResultIntentFilter = null;
+
+        mC40ScanDataReceiver = null;
+        mC40ScanDataIntentFilter = null;
+
         super.onDestroy();
     }
 

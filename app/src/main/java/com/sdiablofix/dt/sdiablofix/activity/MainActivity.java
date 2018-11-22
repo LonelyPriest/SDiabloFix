@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.KeyEvent;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
@@ -237,5 +238,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_MUTE:
+                if (event.getRepeatCount() == 0) {
+                    Fragment f = getSupportFragmentManager().findFragmentByTag(mCurrentNavTag.getTag());
+                    if ( f instanceof BatchStockFix ){
+                        ((BatchStockFix)f).onScanKeyDown();
+                        return true;
+                    }
+                }
+                return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

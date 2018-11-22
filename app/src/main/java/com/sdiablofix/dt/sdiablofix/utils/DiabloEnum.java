@@ -33,6 +33,8 @@ public class DiabloEnum {
     public static final String DIABLO_CONFIG_YES = "1";
     public static final String DIABLO_CONFIG_NO  = "0";
     public static final String SETTING_AUTO_BARCODE = "bcode_auto";
+    public static final String DIABLO_SCANNER_DEVICE = "p_balance";
+    public static final String DIABLO_DEFAULT_SCANNER_DEVICE = "000000000";
 
     public static final Integer STOCK_FIX = 99;
 
