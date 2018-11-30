@@ -4,10 +4,13 @@ import static java.lang.String.format;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -142,6 +145,13 @@ public class DiabloUtils {
         return  cell;
     }
 
+    public static void formatPageInfo(final TextView cell) {
+        cell.setGravity(Gravity.END);
+        cell.setTextColor(Color.BLACK);
+        cell.setTypeface(null, Typeface.BOLD);
+        cell.setTextSize(14);
+    }
+
 
     public static String toPinYinWithFirstCharacter(String chinese) {
         char [] name = chinese.toCharArray();
@@ -179,6 +189,18 @@ public class DiabloUtils {
 //        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
         // ((Activity)context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    public static Integer calcPage(Integer totalItems, Integer itemsPerPage) {
+        if (totalItems < itemsPerPage) {
+            return 1;
+        }
+        else if (0 == totalItems % itemsPerPage) {
+            return totalItems / itemsPerPage;
+        }
+        else {
+            return totalItems / itemsPerPage + 1;
+        }
     }
 
 

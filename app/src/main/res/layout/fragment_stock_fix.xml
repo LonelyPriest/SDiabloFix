@@ -80,18 +80,22 @@
       android:layout_marginTop="10dp">
   </TableLayout>
 
-  <ScrollView
-      android:id="@+id/t_stock_fix_scroll"
+  <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+      android:id="@+id/t_stock_fix_swipe"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="10dp">
-    <TableLayout
-        android:id="@+id/t_stock_fix"
+      android:layout_height="wrap_content">
+    <ScrollView
+        android:id="@+id/t_stock_fix_scroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+      <TableLayout
+          android:id="@+id/t_stock_fix"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
 
-    </TableLayout>
-  </ScrollView>
-
-
+      </TableLayout>
+    </ScrollView>
+  </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+  
 </LinearLayout>

@@ -42,7 +42,6 @@ dependencies {
   androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
     exclude group: 'com.android.support', module: 'support-annotations'
   })
-  compile files('libs/ScannerInterfa.jar')
   compile 'com.squareup.retrofit2:retrofit:2.1.0'
   compile 'com.squareup.retrofit2:converter-gson:2.1.0'
   compile 'com.android.support:appcompat-v7:25.3.1'
@@ -56,6 +55,7 @@ dependencies {
   compile 'com.github.promeg:tinypinyin-lexicons-java-cncity:2.0.3'
   compile 'com.ashokvarma.android:bottom-navigation-bar:2.0.2'
   compile 'com.beardedhen:androidbootstrap:2.3.2'
+  compile 'com.github.orangegangsters:swipy:1.2.3@aar'
   testCompile 'junit:junit:4.12'
   compile files('libs/Scanner.jar')
 }

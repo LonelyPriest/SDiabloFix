@@ -41,6 +41,10 @@ public class DiabloEnum {
     public static final Integer SUCCESS = 0;
     public static final Integer HTTP_OK = 200;
 
+    public static final Integer DEFAULT_PAGE = 1;
+    public static final Integer DEFAULT_ITEMS_PER_PAGE = 5;
+    public static final Integer START_DEFAULT_INDEX = 1;
+
     //tag
     public static final String TAG_STOCK_FIX = "stockFix";
     public static final String TAG_STOCK_IN = "stockIn";

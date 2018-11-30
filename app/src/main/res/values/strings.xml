@@ -62,6 +62,9 @@
   <string name="success_to_fix_stock">库存盘点成功！！单号：</string>
   <string name="query_stock_fix_difference">请在电脑或平板设置上查看库存差异单</string>
 
+  <string name="refresh_top">己到达第一页，无需刷新</string>
+  <string name="refresh_bottom">已到达最后一页，无需刷新</string>
+
   <!--suggestion-->
   <string name="please_input_firm">厂商，默认为空</string>
   <string name="please_input_barcode">请输入条码</string>
