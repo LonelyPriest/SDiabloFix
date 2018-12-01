@@ -202,6 +202,17 @@ public class BatchStockFix extends Fragment {
         return view;
     }
 
+    private void colorTable() {
+        for (int i=0; i<DiabloEnum.DEFAULT_ITEMS_PER_PAGE; i++) {
+            TableRow row = mTableRows.get(i);
+            if (i % 2 == 0) {
+                row.setBackgroundResource(R.color.bootstrap_brand_warning);
+            } else {
+                row.setBackgroundResource(R.color.bootstrap_brand_secondary_fill);
+            }
+        }
+    }
+
     private void init() {
         mBarcodeStocks = new ArrayList<>();
         mStockFixBase = new StockFixRequest.StockFixBase();
@@ -387,23 +398,14 @@ public class BatchStockFix extends Fragment {
     }
 
     private void addHead() {
-        int len = DiabloEnum.DEFAULT_ITEMS_PER_PAGE;
-        if (mBarcodeStocks.size() < DiabloEnum.DEFAULT_ITEMS_PER_PAGE) {
-            len = mBarcodeStocks.size();
-        }
-
-        for (int i=0; i<len; i++) {
-            DiabloBarcodeStock s = mBarcodeStocks.get(i);
+        for (int i=0; i<DiabloEnum.DEFAULT_ITEMS_PER_PAGE; i++) {
             TableRow row = mTableRows.get(i);
             unregisterForContextMenu(row);
             row.removeAllViews();
-//            if ((mBarcodeStocks.size() % 2) == 0) {
-//                row.setBackgroundResource(R.color.bootstrap_brand_warning);
-//            } else {
-//                row.setBackgroundResource(R.color.bootstrap_brand_secondary_fill);
-//            }
-
-            addRow(s, row);
+            if (i < mBarcodeStocks.size()) {
+                DiabloBarcodeStock s = mBarcodeStocks.get(i);
+                addRow(s, row);
+            }
         }
 
         Integer pages = DiabloUtils.calcPage(mBarcodeStocks.size(), DiabloEnum.DEFAULT_ITEMS_PER_PAGE);
@@ -473,23 +475,25 @@ public class BatchStockFix extends Fragment {
         row.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (int i=0; i<mTable.getChildCount(); i++){
-                    View row = mTable.getChildAt(i);
-                    if (row instanceof TableRow) {
-                        Integer orderId = ((DiabloBarcodeStock)row.getTag()).getOrderId();
-                        if ( orderId.equals(((DiabloBarcodeStock)v.getTag()).getOrderId()) ) {
-                            v.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.bootstrap_brand_info));
-                        }
-//                        else {
-//                            if (orderId % 2 == 0) {
-//                                row.setBackgroundResource(R.color.bootstrap_brand_warning);
-//                            } else {
-//                                row.setBackgroundResource(R.color.bootstrap_brand_secondary_fill);
-//                            }
+                colorTable();
+                v.setBackgroundResource(R.color.bootstrap_brand_info);
+//                for (int i=0; i<mTable.getChildCount(); i++){
+//                    View row = mTable.getChildAt(i);
+//                    if (row instanceof TableRow) {
+//                        Integer orderId = ((DiabloBarcodeStock)row.getTag()).getOrderId();
+//                        if ( orderId.equals(((DiabloBarcodeStock)v.getTag()).getOrderId()) ) {
+//                            v.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.bootstrap_brand_info));
 //                        }
-
-                    }
-                }
+////                        else {
+////                            if (orderId % 2 == 0) {
+////                                row.setBackgroundResource(R.color.bootstrap_brand_warning);
+////                            } else {
+////                                row.setBackgroundResource(R.color.bootstrap_brand_secondary_fill);
+////                            }
+////                        }
+//
+//                    }
+//                }
             }
         });
 
@@ -497,6 +501,8 @@ public class BatchStockFix extends Fragment {
             @Override
             public boolean onLongClick(View view) {
                 // SaleDetailResponse.SaleDetail d = (SaleDetailResponse.SaleDetail)view.getTag();
+                colorTable();
+                view.setBackgroundResource(R.color.bootstrap_brand_info);
                 view.showContextMenu();
                 return true;
             }
@@ -622,8 +628,8 @@ public class BatchStockFix extends Fragment {
                                                 public void onOk() {
                                                     // clear  draft
                                                     DiabloDBManager.instance().clearFixDraft(mCurrentShop.getShop());
-                                                    init();
                                                     mTable.removeAllViews();
+                                                    init();
                                                 }})
                                             .create();
 
