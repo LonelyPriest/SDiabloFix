@@ -379,6 +379,17 @@ public class BatchStockFix extends Fragment {
         return row;
     }
 
+    public void calcPageInfo() {
+        Integer pages = DiabloUtils.calcPage(mBarcodeStocks.size(), DiabloEnum.DEFAULT_ITEMS_PER_PAGE);
+        if (pages > 0 && !mTotalPage.equals(pages)) {
+            mTotalPage = pages;
+            TableRow.LayoutParams lp = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
+            String pageInfo = mCurrentPage.toString() + "/" + mTotalPage.toString();
+            mPageInfoRow.removeAllViews();
+            DiabloUtils.formatPageInfo(DiabloUtils.addCell(getContext(), mPageInfoRow, pageInfo, lp));
+        }
+    }
+
     public void pageChanged() {
         int startPage = (mCurrentPage-1) * DiabloEnum.DEFAULT_ITEMS_PER_PAGE;
         for (int i=0; i<DiabloEnum.DEFAULT_ITEMS_PER_PAGE; i++) {
@@ -408,14 +419,22 @@ public class BatchStockFix extends Fragment {
             }
         }
 
-        Integer pages = DiabloUtils.calcPage(mBarcodeStocks.size(), DiabloEnum.DEFAULT_ITEMS_PER_PAGE);
-        if (pages > 0 && !mTotalPage.equals(pages)) {
-            mTotalPage = pages;
-            TableRow.LayoutParams lp = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
-            String pageInfo = mCurrentPage.toString() + "/" + mTotalPage.toString();
-            mPageInfoRow.removeAllViews();
-            DiabloUtils.formatPageInfo(DiabloUtils.addCell(getContext(), mPageInfoRow, pageInfo, lp));
+        calcPageInfo();
+    }
+
+    private void addCurrentPage() {
+        int startPage = (mCurrentPage-1) * DiabloEnum.DEFAULT_ITEMS_PER_PAGE;
+        for (int i=0; i<DiabloEnum.DEFAULT_ITEMS_PER_PAGE; i++) {
+            TableRow row = mTableRows.get(i);
+            unregisterForContextMenu(row);
+            row.removeAllViews();
+            if (i + startPage < mBarcodeStocks.size()) {
+                DiabloBarcodeStock s = mBarcodeStocks.get(i + startPage);
+                addRow(s, row);
+            }
         }
+
+        calcPageInfo();
     }
 
     private TableRow addRow(DiabloBarcodeStock stock, TableRow row) {
@@ -762,7 +781,7 @@ public class BatchStockFix extends Fragment {
                 mBarcodeStocks.get(i).setOrderId(mBarcodeStocks.size() - i);
             }
 
-            addHead();
+            addCurrentPage();
 
             // reorder
 //            for (int i=0; i<mTable.getChildCount(); i++){
