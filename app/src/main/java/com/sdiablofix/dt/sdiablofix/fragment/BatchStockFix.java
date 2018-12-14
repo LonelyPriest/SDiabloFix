@@ -20,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
@@ -91,6 +92,7 @@ public class BatchStockFix extends Fragment {
     private TableRow mPageInfoRow;
 
     private EditText mBarCodeScanView;
+    private TextView mFixCoutView;
     private SwipyRefreshLayout mTableSwipe;
     private Integer mCurrentPage;
     private Integer mTotalPage;
@@ -145,6 +147,12 @@ public class BatchStockFix extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_stock_fix, container, false);
         mBarCodeScanView = (EditText)view.findViewById(R.id.fix_barcode);
+        mBarCodeScanView.setInputType(InputType.TYPE_NULL);
+        mBarCodeScanView.setTextColor(Color.GRAY);
+        mFixCoutView = (TextView)view.findViewById(R.id.fix_count);
+        // mFixCoutView.setTextColor(Color.RED);
+        // mFixCoutView.setText("0");
+
         mTable = (TableLayout) view.findViewById(R.id.t_stock_fix);
         ((TableLayout)view.findViewById(R.id.t_stock_fix_head)).addView(addTitle());
 
@@ -223,7 +231,8 @@ public class BatchStockFix extends Fragment {
         mTableRows = new ArrayList<>();
         for (int i=0; i<DiabloEnum.DEFAULT_ITEMS_PER_PAGE; i++) {
             TableRow row = new TableRow(getContext());
-            mTableRows.add(row);
+            row.setBackgroundResource(R.drawable.table_row_bg);
+            mTableRows.add(0, row);
 
             if (i % 2 == 0) {
                 row.setBackgroundResource(R.color.bootstrap_brand_warning);
@@ -231,12 +240,13 @@ public class BatchStockFix extends Fragment {
                 row.setBackgroundResource(R.color.bootstrap_brand_secondary_fill);
             }
 
-            mTable.addView(row);
+            mTable.addView(row, 0);
         }
 
         mPageInfoRow = new TableRow(getContext());
         mTable.addView(mPageInfoRow);
 
+        mFixCoutView.setText(String.valueOf(mBarcodeStocks.size()));
         // pagination
         mTotalPage = 0;
         mCurrentPage = 1;
@@ -315,6 +325,12 @@ public class BatchStockFix extends Fragment {
             public void onResponse(final Call<GetStockByBarcodeResponse> call,
                                    Response<GetStockByBarcodeResponse> response) {
                 Log.d(LOG_TAG, "success to get stock by barcode");
+                Log.d(LOG_TAG, "response = " + response.toString());
+                if (!response.isSuccessful()) {
+                    DiabloUtils.playSound(getContext(), R.raw.wire_charging_start);
+                    makeToast(getContext(), DiabloError.getError(9903), Toast.LENGTH_LONG);
+                }
+
                 DiabloBarcodeStock stock = response.body().getBarcodeStock();
                 if (null == stock.getStyleNumber()) {
                     makeToast(getContext(), DiabloError.getError(9901), Toast.LENGTH_LONG);
@@ -438,9 +454,10 @@ public class BatchStockFix extends Fragment {
     }
 
     private TableRow addRow(DiabloBarcodeStock stock, TableRow row) {
-        TextView cell;
+        TextView cell = null;
         for (String title: mTitles){
             TableRow.LayoutParams lp = DiabloUtils.createTableRowParams(1f);
+            lp.setMargins(0, 1, 0, 1);
             if (getResources().getString(R.string.order_id).equals(title)) {
                 lp.weight = 0.5f;
                 cell = addCell(getContext(), row, stock.getOrderId(), lp);
@@ -448,7 +465,7 @@ public class BatchStockFix extends Fragment {
             }
             else if (getResources().getString(R.string.barcode).equals(title)){
                 lp.weight = 1.6f;
-                addCell(getContext(), row, stock.getCorrectBarcode(), lp);
+                cell = addCell(getContext(), row, stock.getCorrectBarcode(), lp);
             }
             else if (getResources().getString(R.string.style_number_brand).equals(title)){
                 lp.weight = 0.8f;
@@ -459,7 +476,7 @@ public class BatchStockFix extends Fragment {
                 Integer colorId = DiabloEnum.DIABLO_FREE;
                 String size = DiabloEnum.DIABLO_FREE_SIZE;
                 if (stock.getFree().equals(DiabloEnum.DIABLO_FREE)) {
-                    addCell(getContext(), row, "均色/均码", lp);
+                    cell = addCell(getContext(), row, "均色/均码", lp);
                 }
                 else {
                     String colorSize = stock.getCorrectBarcode().substring(
@@ -483,10 +500,14 @@ public class BatchStockFix extends Fragment {
                         size = DiabloEnum.DIABLO_SIZE_TO_BARCODE[sizeIndex];
                         desc += size;
                     }
-                    addCell(getContext(), row, desc, lp);
+                    cell = addCell(getContext(), row, desc, lp);
                 }
                 stock.setColor(colorId);
                 stock.setSize(size);
+            }
+
+            if (null != cell ) {
+                cell.setBackgroundResource(R.drawable.table_cell_bg);
             }
         }
 
@@ -496,23 +517,6 @@ public class BatchStockFix extends Fragment {
             public void onClick(View v) {
                 colorTable();
                 v.setBackgroundResource(R.color.bootstrap_brand_info);
-//                for (int i=0; i<mTable.getChildCount(); i++){
-//                    View row = mTable.getChildAt(i);
-//                    if (row instanceof TableRow) {
-//                        Integer orderId = ((DiabloBarcodeStock)row.getTag()).getOrderId();
-//                        if ( orderId.equals(((DiabloBarcodeStock)v.getTag()).getOrderId()) ) {
-//                            v.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.bootstrap_brand_info));
-//                        }
-////                        else {
-////                            if (orderId % 2 == 0) {
-////                                row.setBackgroundResource(R.color.bootstrap_brand_warning);
-////                            } else {
-////                                row.setBackgroundResource(R.color.bootstrap_brand_secondary_fill);
-////                            }
-////                        }
-//
-//                    }
-//                }
             }
         });
 
@@ -696,6 +700,8 @@ public class BatchStockFix extends Fragment {
                                 mStockFixBase = base;
                                 mStockFixBase.setEmployee( DiabloProfile.instance().getEmployees().get(0).getNumber());
                                 initTitle();
+                                mTotalPage = 0;
+                                mCurrentPage = 1;
                                 List<DiabloBarcodeStock> stocks = DiabloDBManager.instance().listFixDetail(mCurrentShop.getShop());
                                 if (0 != stocks.size()) {
                                     // mTable.removeAllViews();
@@ -706,6 +712,7 @@ public class BatchStockFix extends Fragment {
                                         }
                                         mBarcodeStocks.add(0, stocks.get(i));
                                     }
+                                    mFixCoutView.setText(String.valueOf(mBarcodeStocks.size()));
 
                                     addHead();
                                     mButtons.get(R.id.stock_fix_save).enable();
@@ -780,6 +787,8 @@ public class BatchStockFix extends Fragment {
             for (int i=0; i<mBarcodeStocks.size(); i++) {
                 mBarcodeStocks.get(i).setOrderId(mBarcodeStocks.size() - i);
             }
+
+            mFixCoutView.setText(String.valueOf(mBarcodeStocks.size()));
 
             addCurrentPage();
 
@@ -875,7 +884,9 @@ public class BatchStockFix extends Fragment {
                 f.mBarcodeStocks.add(0, stock);
                 if (null == stock.getOrderId()) {
                     stock.setOrderId(f.mBarcodeStocks.size());
-                }
+                }                                                                     
+                f.mFixCoutView.setText(String.valueOf(f.mBarcodeStocks.size()));
+
                 f.addHead();
 
                 if (1 == f.mBarcodeStocks.size()) {

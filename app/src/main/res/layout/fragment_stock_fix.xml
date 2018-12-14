@@ -56,7 +56,19 @@
         android:inputType="number"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0.8"/>
+        android:layout_weight="0.7"/>
+
+    <TextView
+        android:id="@+id/fix_count"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.3"
+        android:textColor="@color/red"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:includeFontPadding="false"
+        android:gravity="center_vertical"
+        android:maxLines="1"/>
 
     <!--<com.beardedhen.androidbootstrap.BootstrapEditText-->
         <!--android:id="@+id/fix_stock_amount"-->
