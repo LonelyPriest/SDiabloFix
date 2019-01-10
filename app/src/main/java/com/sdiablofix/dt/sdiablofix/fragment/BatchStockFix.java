@@ -884,7 +884,7 @@ public class BatchStockFix extends Fragment {
                 f.mBarcodeStocks.add(0, stock);
                 if (null == stock.getOrderId()) {
                     stock.setOrderId(f.mBarcodeStocks.size());
-                }                                                                     
+                }
                 f.mFixCoutView.setText(String.valueOf(f.mBarcodeStocks.size()));
 
                 f.addHead();
