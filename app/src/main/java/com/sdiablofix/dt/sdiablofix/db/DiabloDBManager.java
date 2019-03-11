@@ -99,26 +99,77 @@ public class DiabloDBManager {
     }
 
     public void addFix(Integer shop, DiabloBarcodeStock stock) {
-        ContentValues v = new ContentValues();
-        v.put("order_id", stock.getOrderId());
-        v.put("fix_pos", stock.getFixPos());
-        v.put("shop", shop);
+//        ContentValues v = new ContentValues();
+//        v.put("order_id", stock.getOrderId());
+//        v.put("fix_pos", stock.getFixPos());
+//        v.put("shop", shop);
+//
+//        v.put("barcode", stock.getBarcode());
+//        v.put("c_barcode", stock.getCorrectBarcode());
+//        v.put("style_number", stock.getStyleNumber());
+//        v.put("brand_id", stock.getBrandId());
+//        v.put("fix", stock.getFix());
+//        v.put("color", stock.getColor());
+//        v.put("size", stock.getSize());
+//
+//        v.put("type", stock.getTypeId());
+//        v.put("firm", stock.getFirmId());
+//        v.put("season", stock.getSeason());
+//        v.put("year", stock.getYear());
+//        v.put("tag_price", stock.getTagPrice());
+//
+//        mSQLiteDB.insert(DiabloEnum.D_FIX, null, v);
 
-        v.put("barcode", stock.getBarcode());
-        v.put("c_barcode", stock.getCorrectBarcode());
-        v.put("style_number", stock.getStyleNumber());
-        v.put("brand_id", stock.getBrandId());
-        v.put("fix", stock.getFix());
-        v.put("color", stock.getColor());
-        v.put("size", stock.getSize());
+        mSQLiteDB.beginTransaction();
 
-        v.put("type", stock.getTypeId());
-        v.put("firm", stock.getFirmId());
-        v.put("season", stock.getSeason());
-        v.put("year", stock.getYear());
-        v.put("tag_price", stock.getTagPrice());
+        try {
+            String sql = "insert into " + DiabloEnum.D_FIX
+                + "("
+                + "order_id"
+                + ", fix_pos"
+                + ", shop"
 
-        mSQLiteDB.insert(DiabloEnum.D_FIX, null, v);
+                + ", barcode"
+                + ", c_barcode"
+                + ", style_number"
+                + ", brand_id"
+                + ", fix"
+                + ", color"
+                + ", size"
+
+                + ", type"
+                + ", firm"
+                + ", season"
+                + ", year"
+                + ", tag_price)"
+                + " values(?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?)";
+
+            SQLiteStatement s3 = mSQLiteDB.compileStatement(sql);
+            s3.bindString(1, DiabloUtils.toString(stock.getOrderId()));
+            s3.bindString(2, DiabloUtils.toString(stock.getFixPos()));
+            s3.bindString(3, DiabloUtils.toString(shop));
+
+            s3.bindString(4, stock.getBarcode());
+            s3.bindString(5, stock.getCorrectBarcode());
+            s3.bindString(6, stock.getStyleNumber());
+            s3.bindString(7, DiabloUtils.toString(stock.getBrandId()));
+            s3.bindString(8, DiabloUtils.toString(stock.getFix()));
+            s3.bindString(9, DiabloUtils.toString(stock.getColor()));
+            s3.bindString(10, stock.getSize());
+
+            s3.bindString(11, DiabloUtils.toString(stock.getTypeId()));
+            s3.bindString(12, DiabloUtils.toString(stock.getFirmId()));
+            s3.bindString(13, DiabloUtils.toString(stock.getSeason()));
+            s3.bindString(14, DiabloUtils.toString(stock.getYear()));
+            s3.bindString(15, DiabloUtils.toString(stock.getTagPrice()));
+
+            s3.execute();
+            s3.clearBindings();
+
+            mSQLiteDB.setTransactionSuccessful();
+        } finally {
+            mSQLiteDB.endTransaction();
+        }
     }
 
     public  List<DiabloBarcodeStock> listFixDetail(Integer shop) {

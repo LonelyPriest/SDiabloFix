@@ -824,8 +824,7 @@ public class BatchStockFix extends Fragment {
 //                }
 //            }
 
-            boolean replace = index != mBarcodeStocks.size() - 1;
-            if (!replace) {
+            if (index == 0) {
                 DiabloDBManager.instance().deleteFixDetail(mCurrentShop.getShop(), orderId);
             } else {
                 DiabloDBManager.instance().replaceFixDetail(mCurrentShop.getShop(), mBarcodeStocks);

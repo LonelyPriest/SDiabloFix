@@ -56,6 +56,7 @@ dependencies {
   compile 'com.ashokvarma.android:bottom-navigation-bar:2.0.2'
   compile 'com.beardedhen:androidbootstrap:2.3.2'
   compile 'com.github.orangegangsters:swipy:1.2.3@aar'
+  debugCompile 'com.amitshekhar.android:debug-db:1.0.0'
   testCompile 'junit:junit:4.12'
   compile files('libs/Scanner.jar')
 }
