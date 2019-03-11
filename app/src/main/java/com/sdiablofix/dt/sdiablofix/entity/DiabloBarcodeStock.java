@@ -9,6 +9,8 @@ import com.google.gson.annotations.SerializedName;
 public class DiabloBarcodeStock {
     @SerializedName("id")
     private Integer stockId;
+    @SerializedName("fix_pos")
+    private Integer fixPos;
     @SerializedName("order_id")
     private Integer orderId;
 
@@ -89,6 +91,14 @@ public class DiabloBarcodeStock {
 
     public void setOrderId(Integer orderId) {
         this.orderId = orderId;
+    }
+
+    public Integer getFixPos() {
+        return fixPos;
+    }
+
+    public void setFixPos(Integer fixPos) {
+        this.fixPos = fixPos;
     }
 
     public String getStyleNumber() {

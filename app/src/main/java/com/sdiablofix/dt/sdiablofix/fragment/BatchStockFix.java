@@ -92,6 +92,7 @@ public class BatchStockFix extends Fragment {
     private TableRow mPageInfoRow;
 
     private EditText mBarCodeScanView;
+    private EditText mStyleNumberScanView;
     private TextView mFixCoutView;
     private SwipyRefreshLayout mTableSwipe;
     private Integer mCurrentPage;
@@ -149,9 +150,14 @@ public class BatchStockFix extends Fragment {
         mBarCodeScanView = (EditText)view.findViewById(R.id.fix_barcode);
         mBarCodeScanView.setInputType(InputType.TYPE_NULL);
         mBarCodeScanView.setTextColor(Color.GRAY);
-        mFixCoutView = (TextView)view.findViewById(R.id.fix_count);
+
+        mStyleNumberScanView = (EditText)view.findViewById(R.id.fix_styleNumber);
+        mStyleNumberScanView.setInputType(InputType.TYPE_CLASS_NUMBER);
+        mStyleNumberScanView.setTextColor(Color.BLUE);
         // mFixCoutView.setTextColor(Color.RED);
         // mFixCoutView.setText("0");
+
+        mFixCoutView = (TextView)view.findViewById(R.id.fix_count);
 
         mTable = (TableLayout) view.findViewById(R.id.t_stock_fix);
         ((TableLayout)view.findViewById(R.id.t_stock_fix_head)).addView(addTitle());
@@ -246,7 +252,7 @@ public class BatchStockFix extends Fragment {
         mPageInfoRow = new TableRow(getContext());
         mTable.addView(mPageInfoRow);
 
-        mFixCoutView.setText(String.valueOf(mBarcodeStocks.size()));
+        mFixCoutView.setText(String.valueOf(getFixStocksCount()));
         // pagination
         mTotalPage = 0;
         mCurrentPage = 1;
@@ -469,7 +475,7 @@ public class BatchStockFix extends Fragment {
             }
             else if (getResources().getString(R.string.style_number_brand).equals(title)){
                 lp.weight = 0.8f;
-                cell = addCell(getContext(), row, stock.getStyleNumber(), lp);
+                cell = addCell(getContext(), row, stock.getStyleNumber() + "/" + stock.getFixPos(), lp);
                 cell.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
             }
             else if (getResources().getString(R.string.color_size).equals(title)) {
@@ -524,6 +530,8 @@ public class BatchStockFix extends Fragment {
             @Override
             public boolean onLongClick(View view) {
                 // SaleDetailResponse.SaleDetail d = (SaleDetailResponse.SaleDetail)view.getTag();
+                DiabloBarcodeStock s = ((DiabloBarcodeStock)view.getTag());
+                mStyleNumberScanView.setText(s.getStyleNumber() + "/" + s.getFixPos());
                 colorTable();
                 view.setBackgroundResource(R.color.bootstrap_brand_info);
                 view.showContextMenu();
@@ -712,7 +720,7 @@ public class BatchStockFix extends Fragment {
                                         }
                                         mBarcodeStocks.add(0, stocks.get(i));
                                     }
-                                    mFixCoutView.setText(String.valueOf(mBarcodeStocks.size()));
+                                    mFixCoutView.setText(String.valueOf(getFixStocksCount()));
 
                                     addHead();
                                     mButtons.get(R.id.stock_fix_save).enable();
@@ -782,13 +790,23 @@ public class BatchStockFix extends Fragment {
                     break;
                 }
             }
+
+            DiabloBarcodeStock deletedStock = mBarcodeStocks.get(index);
+            for (int j=index - 1; j >= 0; j--) {
+                if (mBarcodeStocks.get(j).getStyleNumber().equals(deletedStock.getStyleNumber())
+                    && mBarcodeStocks.get(j).getBrandId().equals(deletedStock.getBrandId())) {
+                    mBarcodeStocks.get(j).setFixPos(mBarcodeStocks.get(j).getFixPos() - 1);
+                }
+            }
+
             mBarcodeStocks.remove(index);
 
+            // reorder
             for (int i=0; i<mBarcodeStocks.size(); i++) {
                 mBarcodeStocks.get(i).setOrderId(mBarcodeStocks.size() - i);
             }
 
-            mFixCoutView.setText(String.valueOf(mBarcodeStocks.size()));
+            mFixCoutView.setText(String.valueOf(getFixStocksCount()));
 
             addCurrentPage();
 
@@ -870,6 +888,27 @@ public class BatchStockFix extends Fragment {
         super.onDestroy();
     }
 
+    private Integer getFixStocksCount() {
+        int fixStock = 0;
+        for(DiabloBarcodeStock stock: mBarcodeStocks) {
+            fixStock += stock.getFix();
+        }
+
+        return fixStock;
+    }
+
+    private Integer getPosInFixStocks(DiabloBarcodeStock stock) {
+        int pos = 1;
+        for (DiabloBarcodeStock s: mBarcodeStocks) {
+            if (s.getStyleNumber().equals(stock.getStyleNumber())
+                && s.getBrandId().equals(stock.getBrandId())) {
+                pos += 1;
+            }
+        }
+
+        return  pos;
+    }
+
     private static class StockFixHandler extends Handler {
         WeakReference<Fragment> mFragment;
         StockFixHandler(Fragment fragment){
@@ -881,11 +920,15 @@ public class BatchStockFix extends Fragment {
             if (msg.what == DiabloEnum.STOCK_FIX){
                 final BatchStockFix f = ((BatchStockFix)mFragment.get());
                 DiabloBarcodeStock stock = (DiabloBarcodeStock) msg.obj;
+                stock.setFixPos(f.getPosInFixStocks(stock));
                 f.mBarcodeStocks.add(0, stock);
+
                 if (null == stock.getOrderId()) {
                     stock.setOrderId(f.mBarcodeStocks.size());
                 }
-                f.mFixCoutView.setText(String.valueOf(f.mBarcodeStocks.size()));
+
+                f.mFixCoutView.setText(String.valueOf(f.getFixStocksCount()));
+                f.mStyleNumberScanView.setText(stock.getStyleNumber() + "/" + stock.getFixPos());
 
                 f.addHead();
 

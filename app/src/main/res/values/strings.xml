@@ -6,7 +6,7 @@
   <string name="login_name">请输入用户名</string>
   <string name="login_password">请输入用户密码</string>
 
-  <string name="diablo_test_server">http://192.168.0.104:63552/</string>
+  <string name="diablo_test_server">http://192.168.1.4:63552/</string>
   <string name="diablo_production_server">http://120.24.39.174/</string>
   <string-array name="servers">
     <item>深圳服务器</item>
@@ -67,8 +67,9 @@
 
   <!--suggestion-->
   <string name="please_input_firm">厂商，默认为空</string>
-  <string name="please_input_barcode">请输入条码</string>
-
+  <string name="please_input_barcode">请扫描条码</string>
+  <string name="please_input_styleNumber">请输入款号</string>
+  
   <string name="invalid_name_password">用户名或密码错误</string>
   <string name="login_user_active">该用户已登录系统，是否继续登录？</string>
   <string name="login_exceed_user">超过在线最大用户数限制，是否强制登录？注意：系统将踢出未在线时间最长用户</string>

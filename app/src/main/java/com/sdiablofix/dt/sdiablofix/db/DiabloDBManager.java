@@ -101,6 +101,7 @@ public class DiabloDBManager {
     public void addFix(Integer shop, DiabloBarcodeStock stock) {
         ContentValues v = new ContentValues();
         v.put("order_id", stock.getOrderId());
+        v.put("fix_pos", stock.getFixPos());
         v.put("shop", shop);
 
         v.put("barcode", stock.getBarcode());
@@ -121,7 +122,7 @@ public class DiabloDBManager {
     }
 
     public  List<DiabloBarcodeStock> listFixDetail(Integer shop) {
-        String sql0 = "select order_id, shop"
+        String sql0 = "select order_id, fix_pos, shop"
             + ", barcode, c_barcode, style_number, brand_id, fix, color, size"
             + ", type, firm, season, year, tag_price"
             + " from " + DiabloEnum.D_FIX
@@ -133,6 +134,7 @@ public class DiabloDBManager {
         try {
             while (c.moveToNext()){
                 Integer orderId = c.getInt(c.getColumnIndex("order_id"));
+                Integer fixPos = c.getInt(c.getColumnIndex("fix_pos"));
 
                 String barcode = c.getString(c.getColumnIndex("barcode"));
                 String correctBarcode = c.getString(c.getColumnIndex("c_barcode"));
@@ -150,6 +152,7 @@ public class DiabloDBManager {
 
                 DiabloBarcodeStock stock = new DiabloBarcodeStock();
                 stock.setOrderId(orderId);
+                stock.setFixPos(fixPos);
                 stock.setBarcode(barcode);
                 stock.setCorrectBarcode(correctBarcode);
 
@@ -194,7 +197,8 @@ public class DiabloDBManager {
             String sql3 = "insert into " + DiabloEnum.D_FIX
                 + "("
                 + "order_id"
-                +", shop"
+                + ", fix_pos"
+                + ", shop"
 
                 + ", barcode"
                 + ", c_barcode"
@@ -209,26 +213,27 @@ public class DiabloDBManager {
                 + ", season"
                 + ", year"
                 + ", tag_price)"
-                + " values(?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?)";
+                + " values(?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?)";
             SQLiteStatement s3 = mSQLiteDB.compileStatement(sql3);
 
             for (DiabloBarcodeStock stock : stocks) {
                 s3.bindString(1, DiabloUtils.toString(stock.getOrderId()));
-                s3.bindString(2, DiabloUtils.toString(shop));
+                s3.bindString(2, DiabloUtils.toString(stock.getFixPos()));
+                s3.bindString(3, DiabloUtils.toString(shop));
 
-                s3.bindString(3, stock.getBarcode());
-                s3.bindString(4, stock.getCorrectBarcode());
-                s3.bindString(5, stock.getStyleNumber());
-                s3.bindString(6, DiabloUtils.toString(stock.getBrandId()));
-                s3.bindString(7, DiabloUtils.toString(stock.getFix()));
-                s3.bindString(8, DiabloUtils.toString(stock.getColor()));
-                s3.bindString(9, stock.getSize());
+                s3.bindString(4, stock.getBarcode());
+                s3.bindString(5, stock.getCorrectBarcode());
+                s3.bindString(6, stock.getStyleNumber());
+                s3.bindString(7, DiabloUtils.toString(stock.getBrandId()));
+                s3.bindString(8, DiabloUtils.toString(stock.getFix()));
+                s3.bindString(9, DiabloUtils.toString(stock.getColor()));
+                s3.bindString(10, stock.getSize());
 
-                s3.bindString(10, DiabloUtils.toString(stock.getTypeId()));
-                s3.bindString(11, DiabloUtils.toString(stock.getFirmId()));
-                s3.bindString(12, DiabloUtils.toString(stock.getSeason()));
-                s3.bindString(13, DiabloUtils.toString(stock.getYear()));
-                s3.bindString(14, DiabloUtils.toString(stock.getTagPrice()));
+                s3.bindString(11, DiabloUtils.toString(stock.getTypeId()));
+                s3.bindString(12, DiabloUtils.toString(stock.getFirmId()));
+                s3.bindString(13, DiabloUtils.toString(stock.getSeason()));
+                s3.bindString(14, DiabloUtils.toString(stock.getYear()));
+                s3.bindString(15, DiabloUtils.toString(stock.getTagPrice()));
 
                 s3.execute();
                 s3.clearBindings();
