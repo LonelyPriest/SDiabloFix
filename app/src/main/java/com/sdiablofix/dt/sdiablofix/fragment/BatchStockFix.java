@@ -897,11 +897,22 @@ public class BatchStockFix extends Fragment {
     }
 
     private Integer getPosInFixStocks(DiabloBarcodeStock stock) {
+//        int pos = 1;
+//        for (DiabloBarcodeStock s: mBarcodeStocks) {
+//            if (s.getStyleNumber().equals(stock.getStyleNumber())
+//                && s.getBrandId().equals(stock.getBrandId())) {
+//                pos += 1;
+//            }
+//        }
+//
+//        return  pos;
         int pos = 1;
-        for (DiabloBarcodeStock s: mBarcodeStocks) {
+        for (int i=0; i<mBarcodeStocks.size(); i++) {
+            DiabloBarcodeStock s = mBarcodeStocks.get(i);
             if (s.getStyleNumber().equals(stock.getStyleNumber())
                 && s.getBrandId().equals(stock.getBrandId())) {
-                pos += 1;
+                pos = s.getFixPos() + 1;
+                break;
             }
         }
 
