@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DiabloDBOpenHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "diablo";
-    private static final Integer DB_VERSION = 2;
+    private static final Integer DB_VERSION = 3;
 
     private static DiabloDBOpenHelper diabloDBHelper;
 
@@ -55,6 +55,7 @@ public class DiabloDBOpenHelper extends SQLiteOpenHelper {
             + ", season integer not null"
             + ", year integer not null"
             + ", tag_price real not null"
+            + ", amount integer not null"
 
             + ", unique(order_id, shop) ON CONFLICT REPLACE)";
 

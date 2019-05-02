@@ -141,8 +141,9 @@ public class DiabloDBManager {
                 + ", firm"
                 + ", season"
                 + ", year"
-                + ", tag_price)"
-                + " values(?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?)";
+                + ", tag_price"
+                + ", amount)"
+                + " values(?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?)";
 
             SQLiteStatement s3 = mSQLiteDB.compileStatement(sql);
             s3.bindString(1, DiabloUtils.toString(stock.getOrderId()));
@@ -163,6 +164,8 @@ public class DiabloDBManager {
             s3.bindString(14, DiabloUtils.toString(stock.getYear()));
             s3.bindString(15, DiabloUtils.toString(stock.getTagPrice()));
 
+            s3.bindString(16, DiabloUtils.toString(stock.getAmount()));
+
             s3.execute();
             s3.clearBindings();
 
@@ -173,9 +176,23 @@ public class DiabloDBManager {
     }
 
     public  List<DiabloBarcodeStock> listFixDetail(Integer shop) {
-        String sql0 = "select order_id, fix_pos, shop"
-            + ", barcode, c_barcode, style_number, brand_id, fix, color, size"
-            + ", type, firm, season, year, tag_price"
+        String sql0 = "select "
+            + "order_id"
+            + ", fix_pos"
+            + ", shop"
+            + ", barcode"
+            + ", c_barcode"
+            + ", style_number"
+            + ", brand_id"
+            + ", fix"
+            + ", color"
+            + ", size"
+            + ", type"
+            + ", firm"
+            + ", season"
+            + ", year"
+            + ", tag_price"
+            + ", amount"
             + " from " + DiabloEnum.D_FIX
             + " where shop=? order by order_id";
         Cursor c = mSQLiteDB.rawQuery(sql0, new String[] {DiabloUtils.toString(shop)});
@@ -201,6 +218,8 @@ public class DiabloDBManager {
                 Integer year = c.getInt(c.getColumnIndex("year"));
                 Float tagPrice = c.getFloat(c.getColumnIndex("tag_price"));
 
+                Integer amount = c.getInt(c.getColumnIndex("amount"));
+
                 DiabloBarcodeStock stock = new DiabloBarcodeStock();
                 stock.setOrderId(orderId);
                 stock.setFixPos(fixPos);
@@ -218,6 +237,8 @@ public class DiabloDBManager {
                 stock.setSeason(season);
                 stock.setYear(year);
                 stock.setTagPrice(tagPrice);
+
+                stock.setAmount(amount);
 
                 if (color.equals(DiabloEnum.DIABLO_FREE_COLOR)
                     && size.equals(DiabloEnum.DIABLO_FREE_SIZE)) {
@@ -263,8 +284,9 @@ public class DiabloDBManager {
                 + ", firm"
                 + ", season"
                 + ", year"
-                + ", tag_price)"
-                + " values(?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?)";
+                + ", tag_price"
+                + ", amount)"
+                + " values(?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?)";
             SQLiteStatement s3 = mSQLiteDB.compileStatement(sql3);
 
             for (DiabloBarcodeStock stock : stocks) {
@@ -285,6 +307,8 @@ public class DiabloDBManager {
                 s3.bindString(13, DiabloUtils.toString(stock.getSeason()));
                 s3.bindString(14, DiabloUtils.toString(stock.getYear()));
                 s3.bindString(15, DiabloUtils.toString(stock.getTagPrice()));
+
+                s3.bindString(16, DiabloUtils.toString(stock.getAmount()));
 
                 s3.execute();
                 s3.clearBindings();

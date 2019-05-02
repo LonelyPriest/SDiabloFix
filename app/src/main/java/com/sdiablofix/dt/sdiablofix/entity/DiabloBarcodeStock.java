@@ -47,6 +47,10 @@ public class DiabloBarcodeStock {
     private Float tagPrice;
     @SerializedName("ediscount")
     private Float eDiscount;
+
+    @SerializedName("amount")
+    private Integer amount;
+
     @SerializedName("discount")
     private Float discount;
     @SerializedName("path")
@@ -231,5 +235,13 @@ public class DiabloBarcodeStock {
 
     public void setFix(Integer fix) {
         this.fix = fix;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 }

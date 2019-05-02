@@ -475,7 +475,10 @@ public class BatchStockFix extends Fragment {
             }
             else if (getResources().getString(R.string.style_number_brand).equals(title)){
                 lp.weight = 0.8f;
-                cell = addCell(getContext(), row, stock.getStyleNumber() + "/" + stock.getFixPos(), lp);
+                cell = addCell(getContext(),
+                    row,
+                    stock.getStyleNumber() + "/" + stock.getFixPos() + "-" + stock.getAmount(),
+                    lp);
                 cell.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
             }
             else if (getResources().getString(R.string.color_size).equals(title)) {
@@ -531,7 +534,7 @@ public class BatchStockFix extends Fragment {
             public boolean onLongClick(View view) {
                 // SaleDetailResponse.SaleDetail d = (SaleDetailResponse.SaleDetail)view.getTag();
                 DiabloBarcodeStock s = ((DiabloBarcodeStock)view.getTag());
-                mStyleNumberScanView.setText(s.getStyleNumber() + "/" + s.getFixPos());
+                mStyleNumberScanView.setText(s.getStyleNumber() + "/" + s.getFixPos() + "-" + s.getAmount());
                 colorTable();
                 view.setBackgroundResource(R.color.bootstrap_brand_info);
                 view.showContextMenu();
@@ -937,8 +940,18 @@ public class BatchStockFix extends Fragment {
                     stock.setOrderId(f.mBarcodeStocks.size());
                 }
 
+                if(stock.getFixPos() == 1) {
+                    DiabloUtils.playSound(f.getContext(), R.raw.elara);
+                }
+
+                // fix count more than real stock, alarm
+                if (stock.getFixPos() > stock.getAmount()) {
+                    DiabloUtils.playSound(f.getContext(), R.raw.carme);
+                }
+
                 f.mFixCoutView.setText(String.valueOf(f.getFixStocksCount()));
-                f.mStyleNumberScanView.setText(stock.getStyleNumber() + "/" + stock.getFixPos());
+                f.mStyleNumberScanView.setText(
+                    stock.getStyleNumber() + "/" + stock.getFixPos() + "-" + stock.getAmount());
 
                 f.addHead();
 
