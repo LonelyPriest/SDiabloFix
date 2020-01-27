@@ -59,4 +59,5 @@ dependencies {
   debugCompile 'com.amitshekhar.android:debug-db:1.0.0'
   testCompile 'junit:junit:4.12'
   compile files('libs/Scanner.jar')
+  compile 'org.jetbrains:annotations-java5:15.0'
 }

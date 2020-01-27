@@ -482,15 +482,19 @@ public class DiabloProfile {
     }
 
     public final DiabloColor getColorByBarcode(Integer barcode) {
-        DiabloColor found = null;
-        for (int i = 0; i < mColors.size(); i++) {
-            if (mColors.get(i).getColorBarcode().equals(barcode)){
-                found = mColors.get(i);
-                break;
+        if (DiabloEnum.DIABLO_FREE_COLOR.equals(barcode)) {
+            return new DiabloColor();
+        } else {
+            DiabloColor found = null;
+            for (int i = 0; i < mColors.size(); i++) {
+                if (mColors.get(i).getColorBarcode().equals(barcode)){
+                    found = mColors.get(i);
+                    break;
+                }
             }
+            return null == found ? new DiabloColor() : found;
         }
 
-        return null == found ? new DiabloColor() : found;
     }
 
 

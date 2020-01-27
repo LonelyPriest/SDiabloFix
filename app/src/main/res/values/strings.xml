@@ -6,8 +6,8 @@
   <string name="login_name">请输入用户名</string>
   <string name="login_password">请输入用户密码</string>
 
-  <string name="diablo_test_server">http://192.168.1.5:63552/</string>
-  <string name="diablo_production_server">http://120.24.39.174/</string>
+  <string name="diablo_test_server">http://192.168.50.127:63552/</string>
+  <string name="diablo_production_server">https://120.24.39.174/</string>
   <string-array name="servers">
     <item>深圳服务器</item>
     <item>测试服务器</item>
@@ -15,9 +15,10 @@
 
   <string-array name="nav_item_activity_titles">
     <item>盘点</item>
-    <item>采购</item>
-    <item>批售</item>
-    <item>批退</item>
+    <item>退货</item>
+    <!--<item>采购</item>-->
+    <!--<item>批售</item>-->
+    <!--<item>批退</item>-->
   </string-array>
 
   <string-array name="thead_fix">
@@ -34,6 +35,7 @@
   <!--bottom bar-->
   <string name="title_stock_fix">盘点</string>
   <string name="title_stock_in">采购</string>
+  <string name="title_stock_out">退货</string>
   <string name="title_sale_in">批售</string>
   <string name="title_sale_out">批退</string>
 
@@ -59,8 +61,11 @@
   <string name="title_none">无</string>
 
   <string name="stock_fix">库存盘点</string>
+  <string name="stock_out">采购退货</string>
   <string name="success_to_fix_stock">库存盘点成功！！单号：</string>
   <string name="query_stock_fix_difference">请在电脑或平板设置上查看库存差异单</string>
+  <string name="success_to_reject_stock">采购退货成功！！单号：</string>
+  <string name="print_stock_out">请在电脑上打印退货单据</string>
 
   <string name="refresh_top">己到达第一页，无需刷新</string>
   <string name="refresh_bottom">已到达最后一页，无需刷新</string>
@@ -102,5 +107,11 @@
   <string name="failed_to_get_big_type">获取货品大类失败</string>
 
   <string name="building">建设中&#8230;</string>
+
+  <string name="openDrawer">open_drawer</string>
+  <string name="closeDrawer">close_drawer</string>
+
+  <string name="nav_stock_fix">盘点</string>
+  <string name="nav_stock_out">退货</string>
 
 </resources>

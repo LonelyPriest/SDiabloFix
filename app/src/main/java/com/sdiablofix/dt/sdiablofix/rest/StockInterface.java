@@ -4,8 +4,10 @@ import com.sdiablofix.dt.sdiablofix.entity.DiabloMatchStock;
 import com.sdiablofix.dt.sdiablofix.request.GetStockByBarcodeRequest;
 import com.sdiablofix.dt.sdiablofix.request.MatchStockRequest;
 import com.sdiablofix.dt.sdiablofix.request.StockFixRequest;
+import com.sdiablofix.dt.sdiablofix.request.StockOutRequest;
 import com.sdiablofix.dt.sdiablofix.response.GetStockByBarcodeResponse;
 import com.sdiablofix.dt.sdiablofix.response.StockFixResponse;
+import com.sdiablofix.dt.sdiablofix.response.StockOutResponse;
 
 import java.util.List;
 
@@ -27,6 +29,13 @@ public interface StockInterface {
     Call<GetStockByBarcodeResponse> getStockByBarcode(
         @Header("cookie") String token, @Body GetStockByBarcodeRequest request);
 
+    @POST("get_stock_note")
+    Call<GetStockByBarcodeResponse> getStockNote(
+        @Header("cookie") String token, @Body GetStockByBarcodeRequest request);
+
     @POST("fix_w_inventory")
     Call<StockFixResponse> fixStock(@Header("cookie") String token, @Body StockFixRequest request);
+
+    @POST("reject_w_inventory")
+    Call<StockOutResponse> rejectStock(@Header("cookie") String token, @Body StockOutRequest request);
 }

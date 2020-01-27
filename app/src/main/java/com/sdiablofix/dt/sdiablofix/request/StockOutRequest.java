@@ -8,28 +8,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by buxianhui on 17/10/6.
+ * Created by buxianhui on 2020/1/26.
  */
 
-public class StockFixRequest {
+public class StockOutRequest {
     @SerializedName("base")
-    private StockFixBase mFixBase;
-    @SerializedName("inventory")
-    private List<StockFix> mStocks;
+    private StockOutBase base;
+    @SerializedName("stock")
+    private List<StockOut> mStocks;
 
-    public StockFixRequest(StockFixBase base) {
-        this.mFixBase = base;
+    public StockOutRequest(StockOutBase base) {
+        this.base = base;
         mStocks = new ArrayList<>();
     }
 
-    public void addStock(StockFix stock) {
+    public void addStock(StockOut stock) {
         boolean exist = false;
-        for(StockFix s: mStocks) {
+        for(StockOut s: mStocks) {
             if (stock.getStyleNumber().equals(s.getStyleNumber())
                 && stock.getBrand().equals(s.getBrand())
                 && stock.getColor().equals(s.getColor())
                 && stock.getSize().equals(s.getSize())) {
-                s.setFix(s.getFix() + stock.getFix());
+                s.setTotal(s.getTotal() + stock.getTotal());
                 exist = true;
                 break;
             }
@@ -40,7 +40,7 @@ public class StockFixRequest {
         }
     }
 
-    public static class StockFixBase {
+    public static class StockOutBase {
         @SerializedName("total")
         private Integer total;
         @SerializedName("shop")
@@ -52,7 +52,7 @@ public class StockFixRequest {
         @SerializedName("employee")
         private String employee;
 
-        public StockFixBase() {
+        public StockOutBase() {
             this.datetime = DiabloUtils.currentDatetime();
         }
 
@@ -62,10 +62,6 @@ public class StockFixRequest {
 
         public void setShop(Integer shop) {
             this.shop = shop;
-        }
-
-        public void setBigType(Integer ctype) {
-            this.ctype = ctype;
         }
 
         public void setDatetime(String datetime) {
@@ -81,13 +77,11 @@ public class StockFixRequest {
         }
     }
 
-    public static class StockFix {
+    public static class StockOut {
         @SerializedName("style_number")
         private String styleNumber;
         @SerializedName("brand")
         private Integer brand;
-        @SerializedName("fix")
-        private Integer fix;
         @SerializedName("color")
         private Integer color;
         @SerializedName("size")
@@ -101,8 +95,26 @@ public class StockFixRequest {
         private Integer season;
         @SerializedName("year")
         private Integer year;
+        @SerializedName("s_group")
+        private String s_group;
+        @SerializedName("free")
+        private Integer free;
+        @SerializedName("alarm_day")
+        private Integer alarm_day;
+
+        @SerializedName("path")
+        private String path;
+        @SerializedName("total")
+        private Integer total;
+
         @SerializedName("tag_price")
         private Float tagPrice;
+        @SerializedName("org_price")
+        private Float orgPrice;
+        @SerializedName("ediscount")
+        private Float ediscount;
+        @SerializedName("discount")
+        private Float discount;
 
         public String getStyleNumber() {
             return styleNumber;
@@ -118,14 +130,6 @@ public class StockFixRequest {
 
         public void setBrand(Integer brand) {
             this.brand = brand;
-        }
-
-        public Integer getFix() {
-            return fix;
-        }
-
-        public void setFix(Integer fix) {
-            this.fix = fix;
         }
 
         public Integer getColor() {
@@ -160,17 +164,88 @@ public class StockFixRequest {
             this.firm = firm;
         }
 
+        public Integer getSeason() {
+            return season;
+        }
+
         public void setSeason(Integer season) {
             this.season = season;
         }
 
+        public Integer getYear() {
+            return year;
+        }
 
         public void setYear(Integer year) {
             this.year = year;
         }
 
+        public String getS_group() {
+            return s_group;
+        }
+
+        public void setS_group(String s_group) {
+            this.s_group = s_group;
+        }
+
+        public Integer getFree() {
+            return free;
+        }
+
+        public void setFree(Integer free) {
+            this.free = free;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        public Integer getTotal() {
+            return total;
+        }
+
+        public void setTotal(Integer total) {
+            this.total = total;
+        }
+
+        public Float getTagPrice() {
+            return tagPrice;
+        }
+
         public void setTagPrice(Float tagPrice) {
             this.tagPrice = tagPrice;
+        }
+
+        public Float getOrgPrice() {
+            return orgPrice;
+        }
+
+        public void setOrgPrice(Float orgPrice) {
+            this.orgPrice = orgPrice;
+        }
+
+        public Float getEdiscount() {
+            return ediscount;
+        }
+
+        public void setEdiscount(Float ediscount) {
+            this.ediscount = ediscount;
+        }
+
+        public Float getDiscount() {
+            return discount;
+        }
+
+        public void setDiscount(Float discount) {
+            this.discount = discount;
+        }
+
+        public void setAlarm_day(Integer alarm_day) {
+            this.alarm_day = alarm_day;
         }
     }
 }

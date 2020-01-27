@@ -1,31 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/stock_fix_save"
-        android:icon="@drawable/ic_file_download_black_24dp"
-        android:title="@string/save"
-        app:showAsAction="ifRoom|withText"/>
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+  <item
+      android:id="@+id/stock_out_save"
+      android:icon="@drawable/ic_file_download_black_24dp"
+      android:title="@string/save"
+      app:showAsAction="ifRoom|withText"/>
 
-    <item
-        android:id="@+id/stock_fix_draft"
-        android:icon="@drawable/ic_drafts_black_24dp"
-        android:title="@string/draft"
-        app:showAsAction="ifRoom|withText"/>
+  <item
+      android:id="@+id/stock_out_draft"
+      android:icon="@drawable/ic_drafts_black_24dp"
+      android:title="@string/draft"
+      app:showAsAction="ifRoom|withText"/>
 
   <group android:checkableBehavior="single">
     <item android:title="@string/setting">
       <menu>
         <item
-            android:id="@+id/fix_select_shop"
+            android:id="@+id/stock_out_select_shop"
             android:icon="@drawable/ic_local_airport_black_24dp"
             android:title="@string/select_shop"
-            app:showAsAction="ifRoom|withText"/>
-
-        <item
-            android:id="@+id/fix_select_ctype"
-            android:icon="@drawable/ic_filter_tilt_shift_black_24dp"
-            android:title="@string/select_good_ctype"
             app:showAsAction="ifRoom|withText"/>
 
         <item
@@ -34,7 +28,7 @@
             android:title="@string/select_firm"
             app:showAsAction="ifRoom|withText"/>
 
-        <item android:id="@+id/fix_clear_draft"
+        <item android:id="@+id/stock_out_clear_draft"
               android:title="@string/clear_draft"
               android:icon="@drawable/ic_clear_all_black_24dp"
               app:showAsAction="ifRoom|withText"/>

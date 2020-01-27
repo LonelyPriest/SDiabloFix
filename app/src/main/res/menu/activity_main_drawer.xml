@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <group android:checkableBehavior="single" android:id="@+id/g1">
+    <item
+        android:id="@+id/nav_stock_fix"
+        android:icon="@drawable/ic_bubble_chart_black_24dp"
+        android:title="@string/nav_stock_fix"/>
+  </group>
+
+  <group android:checkableBehavior="single" android:id="@+id/g2">
+    <item
+        android:id="@+id/nav_stock_out"
+        android:icon="@drawable/ic_remove_shopping_cart_black_24dp"
+        android:title="@string/nav_stock_out"/>
+  </group>
+
+  <group android:checkableBehavior="single" android:id="@+id/g3">
+
+    <item
+        android:id="@+id/nav_clear_draft"
+        android:icon="@drawable/ic_clear_all_black_24dp"
+        android:title="@string/clear_draft"/>
+
+    <item
+        android:id="@+id/nav_logout"
+        android:icon="@drawable/ic_directions_bike_black_24dp"
+        android:title="@string/logout"/>
+  </group>
+
+
+</menu>

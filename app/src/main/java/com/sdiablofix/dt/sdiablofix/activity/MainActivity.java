@@ -2,17 +2,20 @@ package com.sdiablofix.dt.sdiablofix.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.StringRes;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
-import com.ashokvarma.bottomnavigation.BottomNavigationBar;
-import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.github.promeg.tinypinyin.lexicons.android.cncity.CnCityDict;
 import com.sdiablofix.dt.sdiablofix.R;
@@ -25,20 +28,23 @@ import com.sdiablofix.dt.sdiablofix.client.LoginClient;
 import com.sdiablofix.dt.sdiablofix.client.StockClient;
 import com.sdiablofix.dt.sdiablofix.db.DiabloDBManager;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
-import com.sdiablofix.dt.sdiablofix.fragment.BatchSaleIn;
-import com.sdiablofix.dt.sdiablofix.fragment.BatchSaleOut;
 import com.sdiablofix.dt.sdiablofix.fragment.BatchStockFix;
-import com.sdiablofix.dt.sdiablofix.fragment.StockIn;
+import com.sdiablofix.dt.sdiablofix.fragment.BatchStockOut;
 import com.sdiablofix.dt.sdiablofix.request.LogoutRequest;
 import com.sdiablofix.dt.sdiablofix.response.Response;
 import com.sdiablofix.dt.sdiablofix.rest.BaseSettingInterface;
 import com.sdiablofix.dt.sdiablofix.utils.DiabloEnum;
+import com.sdiablofix.dt.sdiablofix.utils.DiabloUtils;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 
 public class MainActivity extends AppCompatActivity {
     private final static String LOG_TAG = "MainActivity:";
+
+    private NavigationView mNavigationView;
+    private DrawerLayout drawer;
+    private Toolbar toolbar;
 
     private NavigationTag mCurrentNavTag;
     private String[] mActivityTitles;
@@ -51,44 +57,50 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        ViewGroup.LayoutParams params = mNavigationView.getLayoutParams();
+        params.width = getResources().getDisplayMetrics().widthPixels / 2;
+        mNavigationView.setLayoutParams(params);
 
         mActivityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
         mNavTagMap.put(0, new NavigationTag(0, DiabloEnum.TAG_STOCK_FIX));
-        mNavTagMap.put(1, new NavigationTag(1, DiabloEnum.TAG_STOCK_IN));
-        mNavTagMap.put(2, new NavigationTag(2, DiabloEnum.TAG_SALE_IN));
-        mNavTagMap.put(3, new NavigationTag(3, DiabloEnum.TAG_SALE_OUT));
+        mNavTagMap.put(1, new NavigationTag(1, DiabloEnum.TAG_STOCK_OUT));
 
-        BottomNavigationBar bar = (BottomNavigationBar) findViewById(R.id.navigation);
-        bar.setMode(BottomNavigationBar.MODE_FIXED);
-        bar.setBackgroundStyle(BottomNavigationBar.BACKGROUND_STYLE_STATIC);
-
-        bar.addItem(createBottomNavigationItem(R.drawable.ic_bubble_chart_black_24dp, R.string.title_stock_fix))
-            .addItem(createBottomNavigationItem(R.drawable.ic_dashboard_black_24dp, R.string.title_stock_in))
-            .addItem(createBottomNavigationItem(R.drawable.ic_add_shopping_cart_black_24dp, R.string.title_sale_in))
-            .addItem(createBottomNavigationItem(R.drawable.ic_remove_shopping_cart_black_24dp, R.string.title_sale_out))
-            // .addItem(createBottomNavigationItem(R.drawable.ic_directions_bike_black_24dp, R.string.title_logout))
-            .setFirstSelectedPosition(0)
-            .initialise();
-
-        bar.setTabSelectedListener(new BottomNavigationBar.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(int position) {
-                selectMenuItem(position);
-                loadFragment();
-            }
-
-            @Override
-            public void onTabUnselected(int position) {
-
-            }
-
-            @Override
-            public void onTabReselected(int position) {
-
-            }
-        });
+//        BottomNavigationBar bar = (BottomNavigationBar) findViewById(R.id.navigation);
+//        bar.setMode(BottomNavigationBar.MODE_FIXED);
+//        bar.setBackgroundStyle(BottomNavigationBar.BACKGROUND_STYLE_STATIC);
+//
+//        bar.addItem(createBottomNavigationItem(R.drawable.ic_bubble_chart_black_24dp, R.string.title_stock_fix))
+//            .addItem(createBottomNavigationItem(R.drawable.ic_dashboard_black_24dp, R.string.title_stock_in))
+//            .addItem(createBottomNavigationItem(R.drawable.ic_add_shopping_cart_black_24dp, R.string.title_sale_in))
+//            .addItem(createBottomNavigationItem(R.drawable.ic_remove_shopping_cart_black_24dp, R.string.title_sale_out))
+//            // .addItem(createBottomNavigationItem(R.drawable.ic_directions_bike_black_24dp, R.string.title_logout))
+//            .setFirstSelectedPosition(0)
+//            .initialise();
+//
+//        bar.setTabSelectedListener(new BottomNavigationBar.OnTabSelectedListener() {
+//            @Override
+//            public void onTabSelected(int position) {
+//                selectMenuItem(position);
+//                loadFragment();
+//            }
+//
+//            @Override
+//            public void onTabUnselected(int position) {
+//
+//            }
+//
+//            @Override
+//            public void onTabReselected(int position) {
+//
+//            }
+//        });
+//
+        setUpNavigationView();
 
         if (savedInstanceState == null) {
             selectMenuItem(0);
@@ -96,20 +108,104 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void setUpNavigationView() {
+        //Setting Navigation View Item Selected Listener to handle the item click of the navigation menu
+        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+
+            // This method will trigger on item Click of navigation menu
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                //Check to see which item was being clicked and perform appropriate action
+                switch (menuItem.getItemId()) {
+                    //Replacing the main content with ContentFragment Which is our Inbox View;
+                    case R.id.nav_stock_fix:
+                        selectMenuItem(0);
+                        break;
+                    case R.id.nav_stock_out:
+                        selectMenuItem(1);
+                        break;
+                    case R.id.nav_logout:
+                        logout();
+                        break;
+                    case R.id.nav_clear_draft:
+                        DiabloDBManager.instance().clearAllDraft();
+                        DiabloUtils.makeToast(getApplicationContext(), "清除草稿成功", Toast.LENGTH_LONG);
+                        break;
+//                    case R.id.nav_clear_login_user:
+//                        DiabloDBManager.instance().clearUser();
+//                        break;
+//                    case R.id.nav_about_us:
+//                        // launch new intent instead of loading fragment
+//                        startActivity(new Intent(MainActivity.this, AboutUsActivity.class));
+//                        drawer.closeDrawers();
+//                        return true;
+//                    case R.id.nav_privacy_policy:
+//                        // launch new intent instead of loading fragment
+//                        startActivity(new Intent(MainActivity.this, PrivacyPolicyActivity.class));
+//                        drawer.closeDrawers();
+//                        return true;
+                    default:
+                        selectMenuItem(0);
+                        break;
+                }
+
+                loadHomeFragment();
+
+                return true;
+            }
+        });
+
+        ActionBarDrawerToggle actionBarDrawerToggle =
+            new ActionBarDrawerToggle(this, drawer, toolbar, R.string.openDrawer, R.string.closeDrawer) {
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+        };
+
+        //Setting the actionbarToggle to drawer layout
+        drawer.addDrawerListener(actionBarDrawerToggle);
+
+        //calling sync state is necessary or else your hamburger icon wont show up
+        actionBarDrawerToggle.syncState();
+    }
+
+
+    private void loadHomeFragment() {
+        // selecting appropriate nav menu item
+        // selectNavMenu();
+
+        // set toolbar title
+        // setActionBarTitle(mCurrentNavTag.getTitleIndex());
+
+        // if user select the current navigation menu again, don't do anything
+        // just close the navigation drawer
+        Fragment f = getSupportFragmentManager().findFragmentByTag(mCurrentNavTag.getTag());
+        if (null != f && f.isVisible()) {
+            drawer.closeDrawers();
+            return;
+        }
+
+        Fragment currentFragment = getCurrentSelectedFragment();
+        switchFragment(currentFragment, mCurrentNavTag.getTag());
+
+        //Closing drawer on item click
+        drawer.closeDrawers();
+
+        // refresh toolbar menu
+        invalidateOptionsMenu();
+    }
     private void init() {
         DiabloDBManager.instance().init(this);
         DiabloProfile.instance().setResource(getResources());
         Pinyin.init(Pinyin.newConfig().with(CnCityDict.getInstance(MainActivity.this)));
     }
-
-    private BottomNavigationItem createBottomNavigationItem(@DrawableRes Integer iconRes, @StringRes Integer titleRes) {
-       return new BottomNavigationItem(iconRes, getResources().getString(titleRes))
-           .setActiveColorResource(R.color.colorPrimaryDark);
-    }
-
-//    private String getTitle(@StringRes Integer titleRes){
-//        return getResources().getString(titleRes);
-//    }
 
     private void loadFragment() {
         Fragment currentFragment = getCurrentSelectedFragment();
@@ -123,13 +219,7 @@ public class MainActivity extends AppCompatActivity {
                 f = new BatchStockFix();
             }
             else if (mCurrentNavTag.getTitleIndex().equals(1)) {
-                f = new StockIn();
-            }
-            else if (mCurrentNavTag.getTitleIndex().equals(2)) {
-                f = new BatchSaleIn();
-            }
-            else if (mCurrentNavTag.getTitleIndex().equals(3)) {
-                f = new BatchSaleOut();
+                f = new BatchStockOut();
             }
         }
         return f;
@@ -154,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
+        // transaction.replace(R.id.frame_container, to);
         transaction.commitAllowingStateLoss();
     }
 
@@ -242,17 +332,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_MUTE:
-                if (event.getRepeatCount() == 0) {
-                    Fragment f = getSupportFragmentManager().findFragmentByTag(mCurrentNavTag.getTag());
-                    if ( f instanceof BatchStockFix ){
-                        ((BatchStockFix)f).onScanKeyDown();
-                        return true;
-                    }
-                }
-                return true;
-        }
         return super.onKeyDown(keyCode, event);
     }
 }

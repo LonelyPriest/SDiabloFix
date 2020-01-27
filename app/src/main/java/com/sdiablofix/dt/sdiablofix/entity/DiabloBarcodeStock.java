@@ -45,14 +45,14 @@ public class DiabloBarcodeStock {
     private Float orgPrice;
     @SerializedName("tag_price")
     private Float tagPrice;
-    @SerializedName("ediscount")
-    private Float eDiscount;
 
     @SerializedName("amount")
     private Integer amount;
 
     @SerializedName("discount")
     private Float discount;
+    @SerializedName("ediscount")
+    private Float ediscount;
     @SerializedName("path")
     private String path;
     @SerializedName("entry_date")
@@ -61,6 +61,8 @@ public class DiabloBarcodeStock {
     private String brand;
     @SerializedName("type")
     private String type;
+    @SerializedName("alarm_day")
+    private Integer alarm_day;
 
     @SerializedName("color")
     private Integer color;
@@ -129,8 +131,20 @@ public class DiabloBarcodeStock {
         this.typeId = typeId;
     }
 
+    public Integer getAlarm_day() {
+        return alarm_day;
+    }
+
+    public void setAlarm_day(Integer alarm_day) {
+        this.alarm_day = alarm_day;
+    }
+
     public Integer getSex() {
         return sex;
+    }
+
+    public void setSex(Integer sex) {
+        this.sex = sex;
     }
 
     public Integer getSeason() {
@@ -151,6 +165,10 @@ public class DiabloBarcodeStock {
 
     public String getsGroup() {
         return sGroup;
+    }
+
+    public void setsGroup(String group) {
+        this.sGroup = group;
     }
 
     public Integer getFree() {
@@ -181,6 +199,10 @@ public class DiabloBarcodeStock {
         return orgPrice;
     }
 
+    public void setOrgPrice(Float orgPrice) {
+        this.orgPrice = orgPrice;
+    }
+
     public Float getTagPrice() {
         return tagPrice;
     }
@@ -189,16 +211,28 @@ public class DiabloBarcodeStock {
         this.tagPrice = tagPrice;
     }
 
-    public Float geteDiscount() {
-        return eDiscount;
+    public Float getEdiscount() {
+        return ediscount;
+    }
+
+    public void setEdiscount(Float eDiscount) {
+        this.ediscount = ediscount;
     }
 
     public Float getDiscount() {
         return discount;
     }
 
+    public void setDiscount(Float discount) {
+        this.discount = discount;
+    }
+
     public String getPath() {
         return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public String getEntryDate() {

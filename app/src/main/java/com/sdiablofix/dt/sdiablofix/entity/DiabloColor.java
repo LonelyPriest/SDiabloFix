@@ -27,8 +27,9 @@ public class DiabloColor extends DiabloEntity{
     /**
      * default color is free color, notice do not changed
      */
-    public DiabloColor(){
+    DiabloColor(){
         this.colorId = DiabloEnum.DIABLO_FREE_COLOR;
+        this.name = "F";
     }
 
     public DiabloColor(String name, Integer typeId) {

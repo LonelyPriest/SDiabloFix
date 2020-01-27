@@ -4,7 +4,7 @@
               android:layout_height="match_parent"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
-              tools:context=".fragment.BatchStockFix">
+              tools:context=".fragment.BatchStockOut">
 
   <LinearLayout
       android:layout_width="match_parent"
@@ -12,7 +12,7 @@
       android:orientation="horizontal"
       android:gravity="center_vertical">
     <EditText
-        android:id="@+id/fix_barcode"
+        android:id="@+id/out_barcode"
         android:hint="@string/please_input_barcode"
         android:inputType="number"
         android:layout_width="0dp"
@@ -21,7 +21,7 @@
         android:layout_weight="0.5"/>
 
     <EditText
-        android:id="@+id/fix_styleNumber"
+        android:id="@+id/out_styleNumber"
         android:hint="@string/please_input_styleNumber"
         android:inputType="number"
         android:layout_width="0dp"
@@ -30,7 +30,7 @@
         android:layout_weight="0.35"/>
 
     <TextView
-        android:id="@+id/fix_count"
+        android:id="@+id/out_count"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.15"
@@ -40,45 +40,30 @@
         android:includeFontPadding="false"
         android:gravity="center_vertical"
         android:maxLines="1"/>
-
-    <!--<com.beardedhen.androidbootstrap.BootstrapEditText-->
-        <!--android:id="@+id/fix_stock_amount"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_weight="0.2"-->
-        <!--android:focusable="false"-->
-        <!--android:inputType="number"-->
-        <!--android:gravity="center_horizontal"-->
-        <!--app:bootstrapBrand="info"-->
-        <!--android:background="@color/colorPrimaryDark"-->
-    <!--/>-->
-
-
   </LinearLayout>
 
   <TableLayout
-      android:id="@+id/t_stock_fix_head"
+      android:id="@+id/t_stock_out_head"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginTop="10dp">
   </TableLayout>
 
   <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
-      android:id="@+id/t_stock_fix_swipe"
+      android:id="@+id/t_stock_out_swipe"
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
     <ScrollView
-        android:id="@+id/t_stock_fix_scroll"
+        android:id="@+id/t_stock_out_scroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp">
       <TableLayout
-          android:id="@+id/t_stock_fix"
+          android:id="@+id/t_stock_out"
           android:layout_width="match_parent"
           android:layout_height="wrap_content">
-
       </TableLayout>
     </ScrollView>
   </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
-  
+
 </LinearLayout>

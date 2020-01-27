@@ -37,7 +37,7 @@ import java.util.Locale;
 
 public class DiabloUtils {
     private final static DateFormat mDatetimeFormat
-        = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.CHINA);
+        = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
 
     public static String currentDatetime(){
         Calendar calendar = Calendar.getInstance();

@@ -37,6 +37,7 @@ public class DiabloEnum {
     public static final String DIABLO_DEFAULT_SCANNER_DEVICE = "000000000";
 
     public static final Integer STOCK_FIX = 99;
+    public static final Integer STOCK_OUT = 98;
 
     public static final Integer SUCCESS = 0;
     public static final Integer HTTP_OK = 200;
@@ -48,6 +49,7 @@ public class DiabloEnum {
     //tag
     public static final String TAG_STOCK_FIX = "stockFix";
     public static final String TAG_STOCK_IN = "stockIn";
+    public static final String TAG_STOCK_OUT = "stockOut";
     public static final String TAG_SALE_IN = "saleIn";
     public static final String TAG_SALE_OUT = "saleOut";
 
@@ -56,8 +58,12 @@ public class DiabloEnum {
      * DB table
      */
     public static final String W_USER = "user";
-    public static final String D_FIX = "d_fix";
-    public static final String B_FIX = "fix_base";
+    public static final String D_FIX  = "d_fix";
+    public static final String B_FIX  = "fix_base";
+    public static final String S_OUT  = "stock_out";
+    
+    public static final Integer SCAN_FIX = 0;
+    public static final Integer SCAN_STOCK_OUT = 1;
 
     public static final String [] DIABLO_SIZE_TO_BARCODE = {
         "FF",
@@ -78,7 +84,7 @@ public class DiabloEnum {
         "95A", "95B", "95C", "95D", "95E", "95F",
 
         "55", "60", "65", "70", "75", "85", "95", "73", "78", "66", "51",
-        "62", "67", "79", "72", "84", "59", "53"
+        "62", "67", "79", "72", "84", "59", "53", "2",  "3",  "8XL", "9XL"
     };
 
     private DiabloEnum(){
