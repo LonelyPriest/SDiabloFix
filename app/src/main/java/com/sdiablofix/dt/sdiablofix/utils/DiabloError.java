@@ -39,6 +39,10 @@ public class DiabloError {
             mErrors.put(9901, r.getString(R.string.empty_barcode_stock));
             mErrors.put(9902, r.getString(R.string.empty_good_big_type));
             mErrors.put(9903, r.getString(R.string.failed_to_fetch_stock));
+            mErrors.put(9904, r.getString(R.string.more_than_stock));
+            mErrors.put(9905, r.getString(R.string.reject_with_different_firm));
+            mErrors.put(9906, r.getString(R.string.reject_with_empty_firm));
+            mErrors.put(9907, r.getString(R.string.reject_with_empty_price));
 
             mErrors.put(1105, r.getString(R.string.login_user_active));
             mErrors.put(1106, r.getString(R.string.login_exceed_user));

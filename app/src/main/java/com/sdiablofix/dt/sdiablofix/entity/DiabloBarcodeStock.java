@@ -2,22 +2,20 @@ package com.sdiablofix.dt.sdiablofix.entity;
 
 import com.google.gson.annotations.SerializedName;
 
+import com.sdiablofix.dt.sdiablofix.utils.DiabloEnum;
+
 /**
  * Created by buxianhui on 17/10/4.
  */
 
 public class DiabloBarcodeStock {
-    @SerializedName("id")
-    private Integer stockId;
-    @SerializedName("fix_pos")
-    private Integer fixPos;
-    @SerializedName("order_id")
-    private Integer orderId;
+    private Integer orderId = 0;
+    private Integer fixPos = 0;
+    private Integer csFixPos = 0;
 
     @SerializedName("bcode")
     private String barcode;
-    @SerializedName("correct_barcode")
-    private String correctBarcode;
+    private String correctBarcode = DiabloEnum.EMPTY_STRING;
 
     @SerializedName("style_number")
     private String styleNumber;
@@ -46,6 +44,7 @@ public class DiabloBarcodeStock {
     @SerializedName("tag_price")
     private Float tagPrice;
 
+    // total with style number
     @SerializedName("amount")
     private Integer amount;
 
@@ -64,16 +63,11 @@ public class DiabloBarcodeStock {
     @SerializedName("alarm_day")
     private Integer alarm_day;
 
-    @SerializedName("color")
-    private Integer color;
-    @SerializedName("size")
-    private String size;
-    @SerializedName("fix")
-    private Integer fix;
-
-    public Integer getStockId() {
-        return stockId;
-    }
+    private Integer color = -1;
+    private String size = DiabloEnum.EMPTY_STRING;
+    private Integer fix = 0;
+    // total with color and size
+    private Integer count = 0;
 
     public String getBarcode() {
         return barcode;
@@ -105,6 +99,14 @@ public class DiabloBarcodeStock {
 
     public void setFixPos(Integer fixPos) {
         this.fixPos = fixPos;
+    }
+
+    public Integer getCSFixPos() {
+        return csFixPos;
+    }
+
+    public void setCSFixPos(Integer csFixPos) {
+        this.csFixPos = csFixPos;
     }
 
     public String getStyleNumber() {
@@ -215,7 +217,7 @@ public class DiabloBarcodeStock {
         return ediscount;
     }
 
-    public void setEdiscount(Float eDiscount) {
+    public void setEdiscount(Float ediscount) {
         this.ediscount = ediscount;
     }
 
@@ -277,5 +279,13 @@ public class DiabloBarcodeStock {
 
     public void setAmount(Integer amount) {
         this.amount = amount;
+    }
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
     }
 }

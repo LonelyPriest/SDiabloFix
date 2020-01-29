@@ -28,10 +28,12 @@
             android:title="@string/select_firm"
             app:showAsAction="ifRoom|withText"/>
 
-        <item android:id="@+id/stock_out_clear_draft"
-              android:title="@string/clear_draft"
-              android:icon="@drawable/ic_clear_all_black_24dp"
-              app:showAsAction="ifRoom|withText"/>
+        <group android:checkableBehavior="single">
+          <item android:id="@+id/stock_out_clear_draft"
+                android:title="@string/clear_draft"
+                android:icon="@drawable/ic_clear_all_black_24dp"
+                app:showAsAction="ifRoom|withText"/>
+        </group>
 
         <!--<item-->
             <!--android:id="@+id/fix_logout"-->

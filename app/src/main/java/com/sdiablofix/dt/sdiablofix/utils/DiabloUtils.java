@@ -225,4 +225,9 @@ public class DiabloUtils {
             }
         });
     }
+
+    public static void error_alarm(Context context, Integer code, int rawId) {
+        DiabloUtils.playSound(context, rawId);
+        DiabloUtils.makeToast(context, DiabloError.getError(code), Toast.LENGTH_LONG);
+    }
 }

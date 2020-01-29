@@ -46,9 +46,12 @@ import com.sdiablofix.dt.sdiablofix.entity.DiabloBigType;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloColor;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloShop;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloStockNote;
 import com.sdiablofix.dt.sdiablofix.request.GetStockByBarcodeRequest;
+import com.sdiablofix.dt.sdiablofix.request.GetStockNoteRequest;
 import com.sdiablofix.dt.sdiablofix.request.StockOutRequest;
 import com.sdiablofix.dt.sdiablofix.response.GetStockByBarcodeResponse;
+import com.sdiablofix.dt.sdiablofix.response.GetStockNoteResponse;
 import com.sdiablofix.dt.sdiablofix.response.StockOutResponse;
 import com.sdiablofix.dt.sdiablofix.rest.StockInterface;
 import com.sdiablofix.dt.sdiablofix.utils.DiabloAlertDialog;
@@ -74,6 +77,9 @@ import retrofit2.Response;
 public class BatchStockOut extends Fragment {
     private final String LOG_TAG = "BatchStockOut:";
     private DiabloShop mCurrentShop;
+    private Integer mFirm;
+    private boolean mRejectWithFirm;
+    private boolean mRejectWithOrgPrice;
     private DiabloBigType mCurrentBigType;
     private String [] mTitles;
 
@@ -123,18 +129,12 @@ public class BatchStockOut extends Fragment {
 
         setHasOptionsMenu(true);
         getActivity().supportInvalidateOptionsMenu();
-
         mRegistered  = false;
+
         mCurrentShop = DiabloProfile.instance().getShop(DiabloProfile.instance().getLoginShop());
         mCurrentBigType = DiabloProfile.instance().getBigTypes().get(0);
-
         mTitles = getResources().getStringArray(R.array.thead_fix);
 
-        String autoBarcode = DiabloProfile.instance().getConfig(
-            DiabloEnum.SETTING_AUTO_BARCODE,
-            DiabloEnum.DIABLO_CONFIG_YES);
-
-        mBarcode = new DiabloBarcode(autoBarcode);
         mButtons = new SparseArray<>();
         mButtons.put(R.id.stock_out_save, new DiabloButton(getContext(), R.id.stock_out_save));
         mButtons.get(R.id.stock_out_save).disable();
@@ -216,6 +216,19 @@ public class BatchStockOut extends Fragment {
     }
 
     private void init() {
+        mFirm = DiabloEnum.INVALID_INDEX;
+
+        String stockConfig = DiabloProfile.instance().getConfig(
+            DiabloEnum.DIABLO_STOCK_CONFIG,
+            DiabloEnum.DIABLO_DEFAULT_STOCK_CONFIG_VALUE);
+        mRejectWithFirm = stockConfig.length() <= 3 || stockConfig.charAt(2) != DiabloEnum.DIABLO_FALSE;
+        mRejectWithOrgPrice = stockConfig.length() <= 4 || stockConfig.charAt(3) != DiabloEnum.DIABLO_FALSE;
+
+        String autoBarcode = DiabloProfile.instance().getConfig(
+            DiabloEnum.SETTING_AUTO_BARCODE,
+            DiabloEnum.DIABLO_CONFIG_YES);
+        mBarcode = new DiabloBarcode(autoBarcode);
+
         mBarcodeStocks = new ArrayList<>();
         mStockBase = new StockOutRequest.StockOutBase();
         mStockBase.setShop(mCurrentShop.getShop());
@@ -266,8 +279,8 @@ public class BatchStockOut extends Fragment {
                         mBarCodeScanView.setText(scanResult);
                         mBarCodeScanView.invalidate();
                         mBarcode.correctBarcode(mBarCodeScanView.getText().toString());
-                        start_check();
-                    }else{
+                        process_scan();
+                    } else {
                         makeToast(getContext(), "解码失败");
                     }
                 }
@@ -282,8 +295,8 @@ public class BatchStockOut extends Fragment {
         mRegistered = true;
     }
 
-    private void start_check() {
-        StockInterface face = StockClient.getClient().create(StockInterface.class);
+    private void process_scan() {
+        final StockInterface face = StockClient.getClient().create(StockInterface.class);
         Call<GetStockByBarcodeResponse> call = face.getStockByBarcode(
             DiabloProfile.instance().getToken(),
             new GetStockByBarcodeRequest(
@@ -298,46 +311,142 @@ public class BatchStockOut extends Fragment {
                 Log.d(LOG_TAG, "success to get stock by barcode");
                 Log.d(LOG_TAG, "response = " + response.toString());
                 if (!response.isSuccessful()) {
-                    DiabloUtils.playSound(getContext(), R.raw.wire_charging_start);
-                    makeToast(getContext(), DiabloError.getError(9903), Toast.LENGTH_LONG);
+                    DiabloUtils.error_alarm(getContext(), 9903, R.raw.wire_charging_start);
                 }
 
-                DiabloBarcodeStock stock = response.body().getBarcodeStock();
+                final DiabloBarcodeStock stock = response.body().getBarcodeStock();
                 if (null == stock.getStyleNumber()) {
-                    makeToast(getContext(), DiabloError.getError(9901), Toast.LENGTH_LONG);
-                    // play sound
-                    DiabloUtils.playSound(getContext(), R.raw.europa);
+                    DiabloUtils.error_alarm(getContext(), 9901, R.raw.europa);
                 } else {
-                    // DiabloUtils.playSound(getContext(), R.raw.wire_charging_start);
-                    stock.setCorrectBarcode(mBarcode.getCorrect());
-                    stock.setFix(1);
-
-                    String colorSize = stock.getCorrectBarcode().substring(
-                        stock.getBarcode().length(), stock.getCorrectBarcode().length());
-                    Integer colorBarcode = DiabloUtils.toInteger(colorSize.substring(0, 3));
-                    Integer sizeIndex = DiabloUtils.toInteger(colorSize.substring(3, colorSize.length()));
-                    DiabloColor color = DiabloProfile.instance().getColorByBarcode(colorBarcode);
-                    stock.setColor(color.getColorId());
-                    stock.setSize(DiabloEnum.DIABLO_SIZE_TO_BARCODE[sizeIndex]);
-
-                    // query real stock use color and size
-                    
-
-                    // handler
-                    Message message = Message.obtain(mHandler);
-                    message.what = DiabloEnum.STOCK_OUT;
-                    message.obj = stock;
-                    message.sendToTarget();
+                    check_stock(stock);
                 }
             }
 
             @Override
             public void onFailure(Call<GetStockByBarcodeResponse> call, Throwable t) {
                 Log.d(LOG_TAG, "failed to get stock by barcode");
-                makeToast(getContext(), DiabloError.getError(500));
-                DiabloUtils.playSound(getContext(), R.raw.ceres);
+                DiabloUtils.error_alarm(getContext(), 500, R.raw.ceres);
             }
         });
+    }
+
+    private void check_stock(final DiabloBarcodeStock stock) {
+        if (!mRejectWithFirm && !mRejectWithOrgPrice) {
+            stock.setCorrectBarcode(mBarcode.getCorrect());
+            start_reject(stock);
+        } else if (mRejectWithFirm && mRejectWithOrgPrice) {
+            if (stock.getFirmId().equals(DiabloEnum.INVALID_INDEX)) {
+                DiabloUtils.error_alarm(getContext(), 9906, R.raw.iapetus);
+            } else if (stock.getOrgPrice() <= 0f) {
+                DiabloUtils.error_alarm(getContext(), 9907, R.raw.iapetus);
+            } else {
+                start_reject_with_firm(stock);
+            }
+        } else if (!mRejectWithFirm) {
+            if (stock.getOrgPrice() <= 0f) {
+                DiabloUtils.error_alarm(getContext(), 9907, R.raw.iapetus);
+            } else {
+                stock.setCorrectBarcode(mBarcode.getCorrect());
+                start_reject(stock);
+            }
+        } else {
+            if (stock.getFirmId().equals(DiabloEnum.INVALID_INDEX)) {
+                DiabloUtils.error_alarm(getContext(), 9907, R.raw.iapetus);
+            } else {
+                start_reject_with_firm(stock);
+            }
+
+        }
+
+    }
+
+    private void start_reject_with_firm(DiabloBarcodeStock stock) {
+        if (mFirm.equals(DiabloEnum.INVALID_INDEX)) {
+            mFirm = stock.getFirmId();
+        }
+
+        if (!mFirm.equals(stock.getFirmId())) {
+            DiabloUtils.error_alarm(getContext(), 9905, R.raw.iapetus);
+        } else {
+            stock.setCorrectBarcode(mBarcode.getCorrect());
+            start_reject(stock);
+        }
+    }
+
+    private void start_reject(final DiabloBarcodeStock stock) {
+        if (stock.getFree().equals(DiabloEnum.DIABLO_FREE)) {
+            stock.setColor(DiabloEnum.DIABLO_FREE_COLOR);
+            stock.setSize(DiabloEnum.DIABLO_FREE_SIZE);
+        } else {
+            String colorSize = stock.getCorrectBarcode().substring(
+                stock.getBarcode().length(), stock.getCorrectBarcode().length());
+            Integer colorBarcode = DiabloUtils.toInteger(colorSize.substring(0, 3));
+            Integer sizeIndex = DiabloUtils.toInteger(colorSize.substring(3, colorSize.length()));
+            DiabloColor color = DiabloProfile.instance().getColorByBarcode(colorBarcode);
+            stock.setColor(color.getColorId());
+            if (sizeIndex == 0) {
+                stock.setSize(DiabloEnum.DIABLO_FREE_SIZE);
+            } else {
+                stock.setSize(DiabloEnum.DIABLO_SIZE_TO_BARCODE[sizeIndex]);
+            }
+        }
+
+
+        // query real stock use color and size
+        Integer count = getStockNoteCount(stock);
+        if (!DiabloEnum.INVALID.equals(count)) {
+            if (getAllStockNoteFix(stock).equals(count)) {
+                DiabloUtils.error_alarm(getContext(), 9904, R.raw.carme);
+            } else {
+                stock.setFix(1);
+                stock.setCount(count);
+
+                Message message = Message.obtain(mHandler);
+                message.what = DiabloEnum.STOCK_OUT;
+                message.obj = stock;
+                message.sendToTarget();
+            }
+        } else {
+            final StockInterface face = StockClient.getClient().create(StockInterface.class);
+            Call<GetStockNoteResponse> call1 = face.getStockNote(
+                DiabloProfile.instance().getToken(),
+                new GetStockNoteRequest(
+                    mCurrentShop.getShop(),
+                    stock.getStyleNumber(),
+                    stock.getBrandId(),
+                    stock.getColor(),
+                    stock.getSize()));
+
+            call1.enqueue(new Callback<GetStockNoteResponse>() {
+                @Override
+                public void onResponse(Call<GetStockNoteResponse> call, Response<GetStockNoteResponse> response) {
+                    Log.d(LOG_TAG, "success to get stock note");
+                    Log.d(LOG_TAG, "response = " + response.toString());
+                    if (!response.isSuccessful()) {
+                        DiabloUtils.error_alarm(getContext(), 9903, R.raw.wire_charging_start);
+                    } else {
+                        DiabloStockNote stockNote = response.body().getStockNote();
+                        if (null == stockNote.getStyleNumber()) {
+                            DiabloUtils.error_alarm(getContext(), 9901, R.raw.europa);
+                        } else {
+                            stock.setFix(1);
+                            stock.setCount(stockNote.getCount());
+                            // handler
+                            Message message = Message.obtain(mHandler);
+                            message.what = DiabloEnum.STOCK_OUT;
+                            message.obj = stock;
+                            message.sendToTarget();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<GetStockNoteResponse> call, Throwable t) {
+                    Log.d(LOG_TAG, "failed to get stock note");
+                    DiabloUtils.error_alarm(getContext(), 500, R.raw.ceres);
+                }
+            });
+        }
     }
 
     private void initTitle() {
@@ -459,7 +568,7 @@ public class BatchStockOut extends Fragment {
             }
             else if (getResources().getString(R.string.color_size).equals(title)) {
                 if (stock.getFree().equals(DiabloEnum.DIABLO_FREE)) {
-                    cell = addCell(getContext(), row, "FF", lp);
+                    cell = addCell(getContext(), row, "F/F", lp);
                 }
                 else {
                     String desc = DiabloProfile.instance().getColor(stock.getColor()).getName();
@@ -519,26 +628,32 @@ public class BatchStockOut extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.stock_out_select_shop: {
-                final List<DiabloShop> shops = DiabloProfile.instance().getSortShop();
-                String[] titles = new String[shops.size()];
-                for (int i = 0; i < shops.size(); i++) {
-                    titles[i] = shops.get(i).getName();
-                }
+                if (!mBarcodeStocks.isEmpty()) {
+                    new DiabloAlertDialog(getContext(),
+                        "采购退货",
+                        "非空单情况不允许切换店铺，请先清空单据内空").create();
+                } else {
+                    final List<DiabloShop> shops = DiabloProfile.instance().getSortShop();
+                    String[] titles = new String[shops.size()];
+                    for (int i = 0; i < shops.size(); i++) {
+                        titles[i] = shops.get(i).getName();
+                    }
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setIcon(R.drawable.ic_local_airport_black_24dp);
-                builder.setTitle(getContext().getResources().getString(R.string.select_shop));
-                builder.setSingleChoiceItems(titles, shops.indexOf(mCurrentShop),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int i) {
-                            dialog.dismiss();
-                            mCurrentShop = shops.get(i);
-                            mStockBase.setShop(mCurrentShop.getShop());
-                            initTitle();
-                        }
-                    });
-                builder.create().show();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setIcon(R.drawable.ic_local_airport_black_24dp);
+                    builder.setTitle(getContext().getResources().getString(R.string.select_shop));
+                    builder.setSingleChoiceItems(titles, shops.indexOf(mCurrentShop),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                dialog.dismiss();
+                                mCurrentShop = shops.get(i);
+                                mStockBase.setShop(mCurrentShop.getShop());
+                                initTitle();
+                            }
+                        });
+                    builder.create().show();
+                }
             }
             break;
             case R.id.stock_out_save:
@@ -552,14 +667,16 @@ public class BatchStockOut extends Fragment {
                         public void onOk() {
                             mBarCodeScanView.setText(null);
                             mStockBase.setTotal(mBarcodeStocks.size());
+                            mStockBase.setFirm(mFirm);
+                            Float shouldPay = 0f;
                             StockOutRequest request = new StockOutRequest(mStockBase);
                             for (DiabloBarcodeStock stock: mBarcodeStocks) {
                                 StockOutRequest.StockOut out = new StockOutRequest.StockOut();
+                                out.addStockNote(stock.getColor(), stock.getSize(), stock.getFix());
                                 out.setStyleNumber(stock.getStyleNumber());
                                 out.setBrand(stock.getBrandId());
-                                out.setColor(stock.getColor());
-                                out.setSize(stock.getSize());
 
+                                out.setSex(stock.getSex());
                                 out.setType(stock.getTypeId());
                                 out.setFirm(stock.getFirmId());
                                 out.setSeason(stock.getSeason());
@@ -577,8 +694,11 @@ public class BatchStockOut extends Fragment {
                                 out.setEdiscount(stock.getEdiscount());
                                 out.setDiscount(stock.getDiscount());
 
+                                shouldPay += stock.getOrgPrice() * stock.getFix();
                                 request.addStock(out);
                             }
+
+                            mStockBase.setShouldPay(shouldPay);
 
                             mButtons.get(R.id.stock_out_save).disable();
                             makeToast(getContext(), "操作成功，请等待操作结果", Toast.LENGTH_LONG);
@@ -664,8 +784,9 @@ public class BatchStockOut extends Fragment {
                                         }
                                         mBarcodeStocks.add(0, stocks.get(i));
                                     }
-                                    mFixCoutView.setText(String.valueOf(getFixStocksCount()));
 
+                                    mFirm = stocks.get(0).getFirmId();
+                                    mFixCoutView.setText(String.valueOf(getFixStocksCount()));
                                     addHead();
                                     mButtons.get(R.id.stock_out_save).enable();
                                 }
@@ -762,6 +883,7 @@ public class BatchStockOut extends Fragment {
             }
 
             if (0 == mBarcodeStocks.size()) {
+                mFirm = DiabloEnum.INVALID_INDEX;
                 mButtons.get(R.id.stock_out_save).disable();
             }
 
@@ -824,6 +946,35 @@ public class BatchStockOut extends Fragment {
         return  pos;
     }
 
+    private Integer getStockNoteCount(DiabloBarcodeStock stock) {
+        Integer count = DiabloEnum.INVALID;
+        for (int i=0; i<mBarcodeStocks.size(); i++) {
+            DiabloBarcodeStock s = mBarcodeStocks.get(i);
+            if (s.getStyleNumber().equals(stock.getStyleNumber())
+                && s.getBrandId().equals(stock.getBrandId())
+                && s.getColor().equals(stock.getColor())
+                && s.getSize().equals(stock.getSize())) {
+                count = s.getCount();
+                break;
+            }
+        }
+        return count;
+    }
+
+    private Integer getAllStockNoteFix(DiabloBarcodeStock stock) {
+        Integer fix = 0;
+        for (int i=0; i<mBarcodeStocks.size(); i++) {
+            DiabloBarcodeStock s = mBarcodeStocks.get(i);
+            if (s.getStyleNumber().equals(stock.getStyleNumber())
+                && s.getBrandId().equals(stock.getBrandId())
+                && s.getColor().equals(stock.getColor())
+                && s.getSize().equals(stock.getSize())) {
+                fix += s.getFix();
+            }
+        }
+        return fix;
+    }
+
     private static class StockOutHandler extends Handler {
         WeakReference<Fragment> mFragment;
         StockOutHandler(Fragment fragment){
@@ -838,7 +989,7 @@ public class BatchStockOut extends Fragment {
                 stock.setFixPos(f.getPosInFixStocks(stock));
                 f.mBarcodeStocks.add(0, stock);
 
-                if (null == stock.getOrderId()) {
+                if (null == stock.getOrderId() || 0 == stock.getOrderId()) {
                     stock.setOrderId(f.mBarcodeStocks.size());
                 }
 
@@ -847,9 +998,9 @@ public class BatchStockOut extends Fragment {
                 }
 
                 // fix count more than real stock, alarm
-                if (stock.getFixPos() > stock.getAmount()) {
-                    DiabloUtils.playSound(f.getContext(), R.raw.carme);
-                }
+//                if (stock.getFixPos() > stock.getAmount()) {
+//                    DiabloUtils.playSound(f.getContext(), R.raw.carme);
+//                }
 
                 f.mFixCoutView.setText(String.valueOf(f.getFixStocksCount()));
                 f.mStyleNumberScanView.setText(

@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DiabloDBOpenHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "diablo";
-    private static final Integer DB_VERSION = 4;
+    private static final Integer DB_VERSION = 11;
 
     private static DiabloDBOpenHelper diabloDBHelper;
 
@@ -40,6 +40,7 @@ public class DiabloDBOpenHelper extends SQLiteOpenHelper {
 
             + ", order_id integer not null"
             + ", fix_pos integer not null"
+            + ", cs_pos integer not null"
             + ", shop integer not null"
 
             + ", barcode text not null"
@@ -88,7 +89,8 @@ public class DiabloDBOpenHelper extends SQLiteOpenHelper {
             + ", discount real not null"
             + ", ediscount real not null"
 
-            + ", amount integer not null"
+            + ", amount integer not null" // total with style number
+            + ", count integer not null" // total with color and size
             + ", unique(order_id, shop) ON CONFLICT REPLACE)";
 
         // 0:fix, 1:reject

@@ -29,7 +29,7 @@ public class DiabloColor extends DiabloEntity{
      */
     DiabloColor(){
         this.colorId = DiabloEnum.DIABLO_FREE_COLOR;
-        this.name = "F";
+        this.name = "F/";
     }
 
     public DiabloColor(String name, Integer typeId) {

@@ -9,6 +9,7 @@ public class DiabloEnum {
     public static final String  SESSION_ID = "qzg_dyty_session";
 
     public static final Integer INVALID_INDEX = -1;
+    public static final Integer INVALID = -1;
     public static final Integer DIABLO_FREE = 0;
     public static final Integer DIABLO_NON_FREE = 1;
     public static final Integer DIABLO_FALSE = 0;
@@ -34,7 +35,9 @@ public class DiabloEnum {
     public static final String DIABLO_CONFIG_NO  = "0";
     public static final String SETTING_AUTO_BARCODE = "bcode_auto";
     public static final String DIABLO_SCANNER_DEVICE = "p_balance";
-    public static final String DIABLO_DEFAULT_SCANNER_DEVICE = "000000000";
+    public static final String DIABLO_STOCK_CONFIG = "stock_firm";
+
+    public static final String DIABLO_DEFAULT_STOCK_CONFIG_VALUE = "1111111";
 
     public static final Integer STOCK_FIX = 99;
     public static final Integer STOCK_OUT = 98;
@@ -66,7 +69,7 @@ public class DiabloEnum {
     public static final Integer SCAN_STOCK_OUT = 1;
 
     public static final String [] DIABLO_SIZE_TO_BARCODE = {
-        "FF",
+        "F",
         "XS",  "S",   "M",   "L",   "XL",  "2XL", "3XL", "4XL", "5XL", "6XL", "7XL",
         "0",   "8",   "9",   "10",  "11",  "12",  "13",  "14",  "15",  "16",  "17",
         "18",  "19",  "20",  "21",  "22",  "23",  "24",  "25",  "26",  "27",  "28",

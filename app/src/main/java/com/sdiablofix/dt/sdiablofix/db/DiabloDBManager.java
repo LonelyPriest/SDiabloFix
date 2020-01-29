@@ -55,7 +55,7 @@ public class DiabloDBManager {
     public DiabloUser getFirstLoginUser(){
         String [] fields = {"name", "password"};
 
-        Cursor cursor = mSQLiteDB.query(DiabloEnum.W_USER, fields, null, null, null, null, null);
+        Cursor cursor = mSQLiteDB.query(DiabloEnum.W_USER, fields, null, null, null, null, "_id desc", "1");
         if (cursor.moveToFirst()){
             DiabloUser user = new DiabloUser();
             user.setName(cursor.getString(cursor.getColumnIndex("name")));
@@ -106,6 +106,7 @@ public class DiabloDBManager {
                 + "("
                 + "order_id"
                 + ", fix_pos"
+                + ", cs_pos"
                 + ", shop"
 
                 + ", barcode"
@@ -122,28 +123,31 @@ public class DiabloDBManager {
                 + ", year"
                 + ", tag_price"
                 + ", amount)"
-                + " values(?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?)";
+                + " values(?, ?, ?, ?,"
+                + "?, ?, ?, ?, ?, ?, ?,"
+                + "?, ?, ?, ?, ?, ?)";
 
             SQLiteStatement s3 = mSQLiteDB.compileStatement(sql);
             s3.bindString(1, DiabloUtils.toString(stock.getOrderId()));
             s3.bindString(2, DiabloUtils.toString(stock.getFixPos()));
-            s3.bindString(3, DiabloUtils.toString(shop));
+            s3.bindString(3, DiabloUtils.toString(stock.getCSFixPos()));
+            s3.bindString(4, DiabloUtils.toString(shop));
 
-            s3.bindString(4, stock.getBarcode());
-            s3.bindString(5, stock.getCorrectBarcode());
-            s3.bindString(6, stock.getStyleNumber());
-            s3.bindString(7, DiabloUtils.toString(stock.getBrandId()));
-            s3.bindString(8, DiabloUtils.toString(stock.getFix()));
-            s3.bindString(9, DiabloUtils.toString(stock.getColor()));
-            s3.bindString(10, stock.getSize());
+            s3.bindString(5, stock.getBarcode());
+            s3.bindString(6, stock.getCorrectBarcode());
+            s3.bindString(7, stock.getStyleNumber());
+            s3.bindString(8, DiabloUtils.toString(stock.getBrandId()));
+            s3.bindString(9, DiabloUtils.toString(stock.getFix()));
+            s3.bindString(10, DiabloUtils.toString(stock.getColor()));
+            s3.bindString(11, stock.getSize());
 
-            s3.bindString(11, DiabloUtils.toString(stock.getTypeId()));
-            s3.bindString(12, DiabloUtils.toString(stock.getFirmId()));
-            s3.bindString(13, DiabloUtils.toString(stock.getSeason()));
-            s3.bindString(14, DiabloUtils.toString(stock.getYear()));
-            s3.bindString(15, DiabloUtils.toString(stock.getTagPrice()));
+            s3.bindString(12, DiabloUtils.toString(stock.getTypeId()));
+            s3.bindString(13, DiabloUtils.toString(stock.getFirmId()));
+            s3.bindString(14, DiabloUtils.toString(stock.getSeason()));
+            s3.bindString(15, DiabloUtils.toString(stock.getYear()));
+            s3.bindString(16, DiabloUtils.toString(stock.getTagPrice()));
 
-            s3.bindString(16, DiabloUtils.toString(stock.getAmount()));
+            s3.bindString(17, DiabloUtils.toString(stock.getAmount()));
 
             s3.execute();
             s3.clearBindings();
@@ -158,6 +162,7 @@ public class DiabloDBManager {
         String sql0 = "select "
             + "order_id"
             + ", fix_pos"
+            + ", cs_pos"
             + ", shop"
             + ", barcode"
             + ", c_barcode"
@@ -182,9 +187,11 @@ public class DiabloDBManager {
             while (c.moveToNext()){
                 Integer orderId = c.getInt(c.getColumnIndex("order_id"));
                 Integer fixPos = c.getInt(c.getColumnIndex("fix_pos"));
+                Integer csPos  = c.getInt(c.getColumnIndex("cs_pos"));
 
                 String barcode = c.getString(c.getColumnIndex("barcode"));
                 String correctBarcode = c.getString(c.getColumnIndex("c_barcode"));
+
                 String styleNumber = c.getString(c.getColumnIndex("style_number"));
                 Integer brand = c.getInt(c.getColumnIndex("brand_id"));
                 Integer fix = c.getInt(c.getColumnIndex("fix"));
@@ -202,6 +209,8 @@ public class DiabloDBManager {
                 DiabloBarcodeStock stock = new DiabloBarcodeStock();
                 stock.setOrderId(orderId);
                 stock.setFixPos(fixPos);
+                stock.setCSFixPos(csPos);
+
                 stock.setBarcode(barcode);
                 stock.setCorrectBarcode(correctBarcode);
 
@@ -249,6 +258,7 @@ public class DiabloDBManager {
                 + "("
                 + "order_id"
                 + ", fix_pos"
+                + ", cs_pos"
                 + ", shop"
 
                 + ", barcode"
@@ -265,33 +275,35 @@ public class DiabloDBManager {
                 + ", year"
                 + ", tag_price"
                 + ", amount)"
-                + " values(?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?)";
-            SQLiteStatement s3 = mSQLiteDB.compileStatement(sql3);
+                + " values(?, ?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?)";
 
+            SQLiteStatement s3 = mSQLiteDB.compileStatement(sql3);
             for (DiabloBarcodeStock stock : stocks) {
                 s3.bindString(1, DiabloUtils.toString(stock.getOrderId()));
                 s3.bindString(2, DiabloUtils.toString(stock.getFixPos()));
-                s3.bindString(3, DiabloUtils.toString(shop));
+                s3.bindString(3, DiabloUtils.toString(stock.getCSFixPos()));
+                s3.bindString(4, DiabloUtils.toString(shop));
 
-                s3.bindString(4, stock.getBarcode());
-                s3.bindString(5, stock.getCorrectBarcode());
-                s3.bindString(6, stock.getStyleNumber());
-                s3.bindString(7, DiabloUtils.toString(stock.getBrandId()));
-                s3.bindString(8, DiabloUtils.toString(stock.getFix()));
-                s3.bindString(9, DiabloUtils.toString(stock.getColor()));
-                s3.bindString(10, stock.getSize());
+                s3.bindString(5, stock.getBarcode());
+                s3.bindString(6, stock.getCorrectBarcode());
+                s3.bindString(7, stock.getStyleNumber());
+                s3.bindString(8, DiabloUtils.toString(stock.getBrandId()));
+                s3.bindString(9, DiabloUtils.toString(stock.getFix()));
+                s3.bindString(10, DiabloUtils.toString(stock.getColor()));
+                s3.bindString(11, stock.getSize());
 
-                s3.bindString(11, DiabloUtils.toString(stock.getTypeId()));
-                s3.bindString(12, DiabloUtils.toString(stock.getFirmId()));
-                s3.bindString(13, DiabloUtils.toString(stock.getSeason()));
-                s3.bindString(14, DiabloUtils.toString(stock.getYear()));
-                s3.bindString(15, DiabloUtils.toString(stock.getTagPrice()));
+                s3.bindString(12, DiabloUtils.toString(stock.getTypeId()));
+                s3.bindString(13, DiabloUtils.toString(stock.getFirmId()));
+                s3.bindString(14, DiabloUtils.toString(stock.getSeason()));
+                s3.bindString(15, DiabloUtils.toString(stock.getYear()));
+                s3.bindString(16, DiabloUtils.toString(stock.getTagPrice()));
 
-                s3.bindString(16, DiabloUtils.toString(stock.getAmount()));
+                s3.bindString(17, DiabloUtils.toString(stock.getAmount()));
 
                 s3.execute();
                 s3.clearBindings();
             }
+
             mSQLiteDB.setTransactionSuccessful();
         } finally {
             mSQLiteDB.endTransaction();
@@ -470,11 +482,12 @@ public class DiabloDBManager {
                 + ", org_price"
                 + ", discount"
                 + ", ediscount"
-                + ", amount)"
+                + ", amount"
+                + ", count)"
                 + " values("
                 + "?, ?, ?, "
                 + "?, ?, ?, ?, ?, ?, ?, ?, ?,"
-                + "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             SQLiteStatement s3 = mSQLiteDB.compileStatement(sql);
             s3.bindString(1, DiabloUtils.toString(stock.getOrderId()));
@@ -503,6 +516,7 @@ public class DiabloDBManager {
             s3.bindString(22, DiabloUtils.toString(stock.getDiscount()));
             s3.bindString(23, DiabloUtils.toString(stock.getEdiscount()));
             s3.bindString(24, DiabloUtils.toString(stock.getAmount()));
+            s3.bindString(25, DiabloUtils.toString(stock.getCount()));
 
             s3.execute();
             s3.clearBindings();
@@ -541,6 +555,7 @@ public class DiabloDBManager {
             + ", discount"
             + ", ediscount"
             + ", amount"
+            + ", count"
             + " from " + DiabloEnum.S_OUT
             + " where shop=? order by order_id";
         Cursor c = mSQLiteDB.rawQuery(sql0, new String[] {DiabloUtils.toString(shop)});
@@ -574,6 +589,7 @@ public class DiabloDBManager {
                 Float discount = c.getFloat(c.getColumnIndex("discount"));
                 Float ediscount = c.getFloat(c.getColumnIndex("ediscount"));
                 Integer amount = c.getInt(c.getColumnIndex("amount"));
+                Integer count = c.getInt(c.getColumnIndex("count"));
 
                 DiabloBarcodeStock stock = new DiabloBarcodeStock();
                 stock.setOrderId(orderId);
@@ -601,6 +617,7 @@ public class DiabloDBManager {
                 stock.setDiscount(discount);
                 stock.setEdiscount(ediscount);
                 stock.setAmount(amount);
+                stock.setCount(count);
 
                 if (color.equals(DiabloEnum.DIABLO_FREE_COLOR)
                     && size.equals(DiabloEnum.DIABLO_FREE_SIZE)) {
@@ -655,13 +672,14 @@ public class DiabloDBManager {
                 + ", org_price"
                 + ", discount"
                 + ", ediscount"
-                + ", amount)"
+                + ", amount"
+                + ", count)"
                 + " values("
                 + "?, ?, ?, "
                 + "?, ?, ?, ?, ?, ?, ?, ?, ?,"
-                + "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            SQLiteStatement s3 = mSQLiteDB.compileStatement(sql3);
+                + "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+            SQLiteStatement s3 = mSQLiteDB.compileStatement(sql3);
             for (DiabloBarcodeStock stock : stocks) {
                 s3.bindString(1, DiabloUtils.toString(stock.getOrderId()));
                 s3.bindString(2, DiabloUtils.toString(stock.getFixPos()));
@@ -689,7 +707,12 @@ public class DiabloDBManager {
                 s3.bindString(22, DiabloUtils.toString(stock.getDiscount()));
                 s3.bindString(23, DiabloUtils.toString(stock.getEdiscount()));
                 s3.bindString(24, DiabloUtils.toString(stock.getAmount()));
+                s3.bindString(25, DiabloUtils.toString(stock.getCount()));
+
+                s3.execute();
+                s3.clearBindings();
             }
+
             mSQLiteDB.setTransactionSuccessful();
         } finally {
             mSQLiteDB.endTransaction();

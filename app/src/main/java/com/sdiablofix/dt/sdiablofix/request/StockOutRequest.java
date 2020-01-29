@@ -14,7 +14,7 @@ import java.util.List;
 public class StockOutRequest {
     @SerializedName("base")
     private StockOutBase base;
-    @SerializedName("stock")
+    @SerializedName("inventory")
     private List<StockOut> mStocks;
 
     public StockOutRequest(StockOutBase base) {
@@ -23,37 +23,55 @@ public class StockOutRequest {
     }
 
     public void addStock(StockOut stock) {
-        boolean exist = false;
+        StockOut out = null;
         for(StockOut s: mStocks) {
             if (stock.getStyleNumber().equals(s.getStyleNumber())
-                && stock.getBrand().equals(s.getBrand())
-                && stock.getColor().equals(s.getColor())
-                && stock.getSize().equals(s.getSize())) {
+                && stock.getBrand().equals(s.getBrand())) {
                 s.setTotal(s.getTotal() + stock.getTotal());
-                exist = true;
+                out = s;
                 break;
             }
         }
 
-        if (!exist) {
+        if (null == out) {
             mStocks.add(stock);
+        } else {
+            boolean found = false;
+            StockOutNote note = stock.getStockOutNotes().get(0);
+            for(StockOutNote n: out.getStockOutNotes()) {
+                if (n.getColor().equals(note.getColor()) && n.getSize().equals(note.getSize())) {
+                    n.reject += n.getReject();
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                out.addStockNote(note.getColor(), note.getSize(), note.getReject());
+            }
         }
     }
 
     public static class StockOutBase {
         @SerializedName("total")
         private Integer total;
+        @SerializedName("should_pay")
+        private Float shouldPay;
         @SerializedName("shop")
         private Integer shop;
-        @SerializedName("ctype")
-        private Integer ctype;
         @SerializedName("datetime")
         private String datetime;
         @SerializedName("employee")
         private String employee;
+        @SerializedName("firm")
+        private Integer firm;
 
         public StockOutBase() {
             this.datetime = DiabloUtils.currentDatetime();
+        }
+
+        public void setShouldPay(Float shouldPay) {
+            this.shouldPay = shouldPay;
         }
 
         public void setTotal(Integer total) {
@@ -75,6 +93,10 @@ public class StockOutRequest {
         public void setEmployee(String employee) {
             this.employee = employee;
         }
+
+        public void setFirm(Integer firm) {
+            this.firm = firm;
+        }
     }
 
     public static class StockOut {
@@ -82,11 +104,13 @@ public class StockOutRequest {
         private String styleNumber;
         @SerializedName("brand")
         private Integer brand;
-        @SerializedName("color")
-        private Integer color;
-        @SerializedName("size")
-        private String size;
+//        @SerializedName("color")
+//        private Integer color;
+//        @SerializedName("size")
+//        private String size;
 
+        @SerializedName("sex")
+        private Integer sex;
         @SerializedName("type")
         private Integer type;
         @SerializedName("firm")
@@ -116,7 +140,22 @@ public class StockOutRequest {
         @SerializedName("discount")
         private Float discount;
 
-        public String getStyleNumber() {
+        @SerializedName("amounts")
+        private List<StockOutNote> stockOutNotes;
+
+        public StockOut() {
+            stockOutNotes = new ArrayList<>();
+        }
+
+        public void addStockNote(Integer color, String size, Integer reject) {
+            stockOutNotes.add(new StockOutNote(color, size, reject));
+        }
+
+        public List<StockOutNote> getStockOutNotes() {
+            return this.stockOutNotes;
+        }
+
+        String getStyleNumber() {
             return styleNumber;
         }
 
@@ -132,20 +171,12 @@ public class StockOutRequest {
             this.brand = brand;
         }
 
-        public Integer getColor() {
-            return color;
+        public Integer getSex() {
+            return sex;
         }
 
-        public void setColor(Integer color) {
-            this.color = color;
-        }
-
-        public String getSize() {
-            return size;
-        }
-
-        public void setSize(String size) {
-            this.size = size;
+        public void setSex(Integer sex) {
+            this.sex = sex;
         }
 
         public Integer getType() {
@@ -204,7 +235,7 @@ public class StockOutRequest {
             this.path = path;
         }
 
-        public Integer getTotal() {
+        Integer getTotal() {
             return total;
         }
 
@@ -246,6 +277,45 @@ public class StockOutRequest {
 
         public void setAlarm_day(Integer alarm_day) {
             this.alarm_day = alarm_day;
+        }
+    }
+
+    private static class StockOutNote {
+        @SerializedName("cid")
+        private Integer color;
+        @SerializedName("size")
+        private String size;
+        @SerializedName("reject_count")
+        private Integer reject;
+
+        private StockOutNote(Integer color, String size, Integer reject) {
+            this.color = color;
+            this.size = size;
+            this.reject = reject;
+        }
+
+        public Integer getColor() {
+            return color;
+        }
+
+        public void setColor(Integer color) {
+            this.color = color;
+        }
+
+        public String getSize() {
+            return size;
+        }
+
+        public void setSize(String size) {
+            this.size = size;
+        }
+
+        public Integer getReject() {
+            return reject;
+        }
+
+        public void setReject(Integer reject) {
+            this.reject = reject;
         }
     }
 }

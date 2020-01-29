@@ -2,10 +2,12 @@ package com.sdiablofix.dt.sdiablofix.rest;
 
 import com.sdiablofix.dt.sdiablofix.entity.DiabloMatchStock;
 import com.sdiablofix.dt.sdiablofix.request.GetStockByBarcodeRequest;
+import com.sdiablofix.dt.sdiablofix.request.GetStockNoteRequest;
 import com.sdiablofix.dt.sdiablofix.request.MatchStockRequest;
 import com.sdiablofix.dt.sdiablofix.request.StockFixRequest;
 import com.sdiablofix.dt.sdiablofix.request.StockOutRequest;
 import com.sdiablofix.dt.sdiablofix.response.GetStockByBarcodeResponse;
+import com.sdiablofix.dt.sdiablofix.response.GetStockNoteResponse;
 import com.sdiablofix.dt.sdiablofix.response.StockFixResponse;
 import com.sdiablofix.dt.sdiablofix.response.StockOutResponse;
 
@@ -30,8 +32,8 @@ public interface StockInterface {
         @Header("cookie") String token, @Body GetStockByBarcodeRequest request);
 
     @POST("get_stock_note")
-    Call<GetStockByBarcodeResponse> getStockNote(
-        @Header("cookie") String token, @Body GetStockByBarcodeRequest request);
+    Call<GetStockNoteResponse> getStockNote(
+        @Header("cookie") String token, @Body GetStockNoteRequest request);
 
     @POST("fix_w_inventory")
     Call<StockFixResponse> fixStock(@Header("cookie") String token, @Body StockFixRequest request);
