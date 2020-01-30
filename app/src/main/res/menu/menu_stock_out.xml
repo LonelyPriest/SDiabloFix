@@ -23,9 +23,9 @@
             app:showAsAction="ifRoom|withText"/>
 
         <item
-            android:id="@+id/fix_select_firm"
+            android:id="@+id/stock_out_clear_firm"
             android:icon="@drawable/ic_landscape_black_24dp"
-            android:title="@string/select_firm"
+            android:title="@string/clear_firm"
             app:showAsAction="ifRoom|withText"/>
 
         <group android:checkableBehavior="single">

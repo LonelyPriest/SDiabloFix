@@ -47,12 +47,9 @@ import com.sdiablofix.dt.sdiablofix.entity.DiabloBigType;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloColor;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloShop;
-import com.sdiablofix.dt.sdiablofix.entity.DiabloStockNote;
 import com.sdiablofix.dt.sdiablofix.request.GetStockByBarcodeRequest;
-import com.sdiablofix.dt.sdiablofix.request.GetStockNoteRequest;
 import com.sdiablofix.dt.sdiablofix.request.StockFixRequest;
 import com.sdiablofix.dt.sdiablofix.response.GetStockByBarcodeResponse;
-import com.sdiablofix.dt.sdiablofix.response.GetStockNoteResponse;
 import com.sdiablofix.dt.sdiablofix.response.StockFixResponse;
 import com.sdiablofix.dt.sdiablofix.rest.StockInterface;
 import com.sdiablofix.dt.sdiablofix.utils.DiabloAlertDialog;
@@ -239,6 +236,7 @@ public class BatchStockFix extends Fragment {
         mTable.addView(mPageInfoRow);
 
         mFixCoutView.setText(String.valueOf(getFixStocksCount()));
+        mStyleNumberScanView.setText(null);
         // pagination
         mTotalPage = 0;
         mCurrentPage = 1;
@@ -265,9 +263,15 @@ public class BatchStockFix extends Fragment {
                         mBarCodeScanView.setText(scanResult);
                         mBarCodeScanView.invalidate();
                         mBarcode.correctBarcode(mBarCodeScanView.getText().toString());
-                        check_first();
+
+                        Integer index = check_exist(mBarcode);
+                        if (!index.equals(DiabloEnum.INVALID_INDEX)) {
+                            start_check_direct(new DiabloBarcodeStock(mBarcodeStocks.get(index)));
+                        } else {
+                            start_check_backend();
+                        }
                     }else{
-                       makeToast(getContext(), "解码失败");
+                       DiabloUtils.makeToast(getContext(), "解码失败");
                     }
                 }
 
@@ -281,7 +285,47 @@ public class BatchStockFix extends Fragment {
         mRegistered = true;
     }
 
-    private void check_first() {
+    private Integer check_exist(DiabloBarcode barcode) {
+        Integer index = DiabloEnum.INVALID_INDEX;
+        for (int i = 0; i<mBarcodeStocks.size(); i++) {
+            if (mBarcodeStocks.get(i).getBarcode().equals(barcode.getCut())) {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
+    }
+
+    private void start_check_direct(DiabloBarcodeStock stock) {
+        stock.setCorrectBarcode(mBarcode.getCorrect());
+
+        if (stock.getFree().equals(DiabloEnum.DIABLO_FREE)) {
+            stock.setColor(DiabloEnum.DIABLO_FREE_COLOR);
+            stock.setSize(DiabloEnum.DIABLO_FREE_SIZE);
+        } else {
+            String colorSize = stock.getCorrectBarcode().substring(
+                stock.getBarcode().length(), stock.getCorrectBarcode().length());
+            Integer colorBarcode = DiabloUtils.toInteger(colorSize.substring(0, 3));
+            Integer sizeIndex = DiabloUtils.toInteger(colorSize.substring(3, colorSize.length()));
+            DiabloColor color = DiabloProfile.instance().getColorByBarcode(colorBarcode);
+            stock.setColor(color.getColorId());
+            if (sizeIndex == 0) {
+                stock.setSize(DiabloEnum.DIABLO_FREE_SIZE);
+            } else {
+                stock.setSize(DiabloEnum.DIABLO_SIZE_TO_BARCODE[sizeIndex]);
+            }
+        }
+
+        stock.setFix(1);
+
+        Message message = Message.obtain(mHandler);
+        message.what = DiabloEnum.STOCK_FIX;
+        message.obj = stock;
+        message.sendToTarget();
+    }
+
+    private void start_check_backend() {
         StockInterface face = StockClient.getClient().create(StockInterface.class);
         Call<GetStockByBarcodeResponse> call = face.getStockByBarcode(
             DiabloProfile.instance().getToken(),
@@ -304,14 +348,7 @@ public class BatchStockFix extends Fragment {
                 if (null == stock.getStyleNumber()) {
                     DiabloUtils.error_alarm(getContext(), 9901, R.raw.europa);
                 } else {
-                    stock.setCorrectBarcode(mBarcode.getCorrect());
-                    check_second(stock);
-//                    stock.setCorrectBarcode(mBarcode.getCorrect());
-//                    stock.setFix(1);
-//                    Message message = Message.obtain(mHandler);
-//                    message.what = DiabloEnum.STOCK_FIX;
-//                    message.obj = stock;
-//                    message.sendToTarget();
+                    start_check_direct(stock);
                 }
             }
 
@@ -323,76 +360,59 @@ public class BatchStockFix extends Fragment {
         });
     }
 
-    private void check_second(final DiabloBarcodeStock stock) {
-        if (stock.getFree().equals(DiabloEnum.DIABLO_FREE)) {
-            stock.setColor(DiabloEnum.DIABLO_FREE_COLOR);
-            stock.setSize(DiabloEnum.DIABLO_FREE_SIZE);
-        } else {
-            String colorSize = stock.getCorrectBarcode().substring(
-                stock.getBarcode().length(), stock.getCorrectBarcode().length());
-            Integer colorBarcode = DiabloUtils.toInteger(colorSize.substring(0, 3));
-            Integer sizeIndex = DiabloUtils.toInteger(colorSize.substring(3, colorSize.length()));
-            DiabloColor color = DiabloProfile.instance().getColorByBarcode(colorBarcode);
-            stock.setColor(color.getColorId());
-            if (sizeIndex == 0) {
-                stock.setSize(DiabloEnum.DIABLO_FREE_SIZE);
-            } else {
-                stock.setSize(DiabloEnum.DIABLO_SIZE_TO_BARCODE[sizeIndex]);
-            }
-        }
-
-        // query real stock use color and size
-        Integer count = getStockNoteCount(stock);
-        if (!DiabloEnum.INVALID.equals(count)) {
-            stock.setFix(1);
-            stock.setCount(count);
-            Message message = Message.obtain(mHandler);
-            message.what = DiabloEnum.STOCK_FIX;
-            message.obj = stock;
-            message.sendToTarget();
-        } else {
-            final StockInterface face = StockClient.getClient().create(StockInterface.class);
-            Call<GetStockNoteResponse> call1 = face.getStockNote(
-                DiabloProfile.instance().getToken(),
-                new GetStockNoteRequest(
-                    mCurrentShop.getShop(),
-                    stock.getStyleNumber(),
-                    stock.getBrandId(),
-                    stock.getColor(),
-                    stock.getSize()));
-
-            call1.enqueue(new Callback<GetStockNoteResponse>() {
-                @Override
-                public void onResponse(Call<GetStockNoteResponse> call, Response<GetStockNoteResponse> response) {
-                    Log.d(LOG_TAG, "success to get stock note");
-                    if (!response.isSuccessful()) {
-                        DiabloUtils.error_alarm(getContext(), 9903, R.raw.wire_charging_start);
-                    } else {
-                        DiabloStockNote stockNote = response.body().getStockNote();
-                        if (null == stockNote.getStyleNumber()) {
-                            DiabloUtils.error_alarm(getContext(), 9901, R.raw.europa);
-                        } else {
-                            // DiabloUtils.playSound(getContext(), R.raw.elara);
-
-                            stock.setFix(1);
-                            stock.setCount(stockNote.getCount());
-                            // handler
-                            Message message = Message.obtain(mHandler);
-                            message.what = DiabloEnum.STOCK_FIX;
-                            message.obj = stock;
-                            message.sendToTarget();
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<GetStockNoteResponse> call, Throwable t) {
-                    Log.d(LOG_TAG, "failed to get stock note");
-                    DiabloUtils.error_alarm(getContext(), 500, R.raw.ceres);
-                }
-            });
-        }
-    }
+//    private void check_second(final DiabloBarcodeStock stock) {
+//        // query real stock use color and size
+//        Integer count = getStockNoteCount(stock);
+//        if (!DiabloEnum.INVALID.equals(count)) {
+//            stock.setFix(1);
+//            stock.setCount(count);
+//            Message message = Message.obtain(mHandler);
+//            message.what = DiabloEnum.STOCK_FIX;
+//            message.obj = stock;
+//            message.sendToTarget();
+//        } else {
+//            final StockInterface face = StockClient.getClient().create(StockInterface.class);
+//            Call<GetStockNoteResponse> call1 = face.getStockNote(
+//                DiabloProfile.instance().getToken(),
+//                new GetStockNoteRequest(
+//                    mCurrentShop.getShop(),
+//                    stock.getStyleNumber(),
+//                    stock.getBrandId(),
+//                    stock.getColor(),
+//                    stock.getSize()));
+//
+//            call1.enqueue(new Callback<GetStockNoteResponse>() {
+//                @Override
+//                public void onResponse(Call<GetStockNoteResponse> call, Response<GetStockNoteResponse> response) {
+//                    Log.d(LOG_TAG, "success to get stock note");
+//                    if (!response.isSuccessful()) {
+//                        DiabloUtils.error_alarm(getContext(), 9903, R.raw.wire_charging_start);
+//                    } else {
+//                        DiabloStockNote stockNote = response.body().getStockNote();
+//                        if (null == stockNote.getStyleNumber()) {
+//                            DiabloUtils.error_alarm(getContext(), 9901, R.raw.europa);
+//                        } else {
+//                            // DiabloUtils.playSound(getContext(), R.raw.elara);
+//
+//                            stock.setFix(1);
+//                            stock.setCount(stockNote.getCount());
+//                            // handler
+//                            Message message = Message.obtain(mHandler);
+//                            message.what = DiabloEnum.STOCK_FIX;
+//                            message.obj = stock;
+//                            message.sendToTarget();
+//                        }
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure(Call<GetStockNoteResponse> call, Throwable t) {
+//                    Log.d(LOG_TAG, "failed to get stock note");
+//                    DiabloUtils.error_alarm(getContext(), 500, R.raw.ceres);
+//                }
+//            });
+//        }
+//    }
 
     private void initTitle() {
         ActionBar bar = ((AppCompatActivity)getActivity()).getSupportActionBar();

@@ -395,7 +395,7 @@ public class BatchStockOut extends Fragment {
         // query real stock use color and size
         Integer count = getStockNoteCount(stock);
         if (!DiabloEnum.INVALID.equals(count)) {
-            if (getAllStockNoteFix(stock).equals(count)) {
+            if (getAllStockNoteFix(stock) >= count) {
                 DiabloUtils.error_alarm(getContext(), 9904, R.raw.carme);
             } else {
                 stock.setFix(1);
@@ -429,13 +429,17 @@ public class BatchStockOut extends Fragment {
                         if (null == stockNote.getStyleNumber()) {
                             DiabloUtils.error_alarm(getContext(), 9901, R.raw.europa);
                         } else {
-                            stock.setFix(1);
-                            stock.setCount(stockNote.getCount());
-                            // handler
-                            Message message = Message.obtain(mHandler);
-                            message.what = DiabloEnum.STOCK_OUT;
-                            message.obj = stock;
-                            message.sendToTarget();
+                            if (stockNote.getCount() <=0) {
+                                DiabloUtils.error_alarm(getContext(), 9904, R.raw.carme);
+                            } else {
+                                stock.setFix(1);
+                                stock.setCount(stockNote.getCount());
+                                // handler
+                                Message message = Message.obtain(mHandler);
+                                message.what = DiabloEnum.STOCK_OUT;
+                                message.obj = stock;
+                                message.sendToTarget();
+                            }
                         }
                     }
                 }
@@ -813,6 +817,25 @@ public class BatchStockOut extends Fragment {
                         }
                     }).create();
                 break;
+
+            case R.id.stock_out_clear_firm:
+                new DiabloAlertDialog(
+                    getContext(),
+                    true,
+                    "重置厂商",
+                    "确定要重置厂商吗？",
+                    new DiabloAlertDialog.OnOkClickListener() {
+                        @Override
+                        public void onOk() {
+                            if (!mBarcodeStocks.isEmpty()) {
+                                DiabloUtils.makeToast(getContext(), "退货单非空，清空退货单后重新操作", Toast.LENGTH_LONG);
+                            } else {
+                                mFirm = DiabloEnum.INVALID_INDEX;
+                            }
+                        }
+                    }).create();
+                break;
+
         }
         return super.onOptionsItemSelected(item);
     }

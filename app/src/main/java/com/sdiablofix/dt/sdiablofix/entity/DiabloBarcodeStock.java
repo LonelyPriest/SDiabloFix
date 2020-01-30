@@ -9,13 +9,13 @@ import com.sdiablofix.dt.sdiablofix.utils.DiabloEnum;
  */
 
 public class DiabloBarcodeStock {
-    private Integer orderId = 0;
-    private Integer fixPos = 0;
-    private Integer csFixPos = 0;
+    private Integer orderId;
+    private Integer fixPos;
+    private Integer csFixPos;
 
     @SerializedName("bcode")
     private String barcode;
-    private String correctBarcode = DiabloEnum.EMPTY_STRING;
+    private String correctBarcode;
 
     @SerializedName("style_number")
     private String styleNumber;
@@ -63,11 +63,60 @@ public class DiabloBarcodeStock {
     @SerializedName("alarm_day")
     private Integer alarm_day;
 
-    private Integer color = -1;
-    private String size = DiabloEnum.EMPTY_STRING;
-    private Integer fix = 0;
+    private Integer color;
+    private String size;
+    private Integer fix;
     // total with color and size
-    private Integer count = 0;
+    private Integer count;
+
+    public DiabloBarcodeStock() {
+        orderId  = 0;
+        fixPos   = 0;
+        csFixPos = 0;
+
+        color = DiabloEnum.INVALID_INDEX;
+        size  = DiabloEnum.EMPTY_STRING;
+        fix   = 0;
+        count = 0;
+    }
+
+    public DiabloBarcodeStock(DiabloBarcodeStock stock) {
+        this.orderId = 0;
+        this.fixPos = 0;
+        this.csFixPos = 0;
+
+        this.barcode = stock.getBarcode();
+        // this.correctBarcode = stock.getCorrectBarcode();
+
+        this.styleNumber = stock.getStyleNumber();
+        this.brandId = stock.getBrandId();
+        this.typeId = stock.getTypeId();
+        this.sex = stock.getSex();
+        this.season = stock.getSeason();
+        this.firmId = stock.getFirmId();
+        this.sGroup = stock.getsGroup();
+        this.free = stock.getFree();
+        this.year = stock.getYear();
+        this.pid = stock.getPid();
+        this.sid = stock.getSid();
+        this.orgPrice = stock.getOrgPrice();
+        this.tagPrice = stock.getTagPrice();
+
+        this.amount = stock.getAmount();
+
+        this.discount = stock.getDiscount();
+        this.ediscount = stock.getEdiscount();
+        this.path = stock.getPath();
+        this.entryDate = stock.getEntryDate();
+        this.brand = stock.getBrand();
+        this.type = stock.getType();
+        this.alarm_day = stock.getAlarm_day();
+
+        this.color = DiabloEnum.INVALID_INDEX;
+        this.size = DiabloEnum.EMPTY_STRING;
+        this.fix = 0;
+        this.count = stock.getCount();
+    }
 
     public String getBarcode() {
         return barcode;

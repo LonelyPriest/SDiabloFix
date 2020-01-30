@@ -43,10 +43,11 @@
   <string name="save">保存</string>
   <string name="draft">草稿</string>
   <string name="clear_draft">清除草稿</string>
+  <string name="clear_firm">重置厂商</string>
   <string name="setting">设置</string>
 
-  <string name="select_shop">店铺</string>
-  <string name="select_firm">厂商</string>
+  <string name="select_shop">选择店铺</string>
+  <string name="select_firm">选择厂商</string>
   <string name="select_good_ctype">货品大类</string>
   <string name="logout">注销</string>
   <string name="login_clear">清除</string>

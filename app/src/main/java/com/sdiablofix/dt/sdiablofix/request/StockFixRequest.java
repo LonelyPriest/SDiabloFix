@@ -14,7 +14,7 @@ import java.util.List;
 public class StockFixRequest {
     @SerializedName("base")
     private StockFixBase mFixBase;
-    @SerializedName("inventory")
+    @SerializedName("stock")
     private List<StockFix> mStocks;
 
     public StockFixRequest(StockFixBase base) {
