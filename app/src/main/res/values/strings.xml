@@ -7,7 +7,7 @@
   <string name="login_password">请输入用户密码</string>
 
   <string name="diablo_test_server">http://192.168.50.127:63552/</string>
-  <string name="diablo_production_server">https://120.24.39.174/</string>
+  <string name="diablo_production_server">http://120.24.39.174/</string>
   <string-array name="servers">
     <item>深圳服务器</item>
     <item>测试服务器</item>
