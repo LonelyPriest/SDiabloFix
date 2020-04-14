@@ -326,6 +326,31 @@ public class DiabloDBManager {
         }
     }
 
+    public void updateFixDetail(Integer shop, List<DiabloBarcodeStock> stocks) {
+        mSQLiteDB.beginTransaction();
+        try {
+            String sql0 = "update "
+                + DiabloEnum.D_FIX
+                + " set fix_pos=?, cs_pos=?, fix=? where shop=? and order_id=?";
+
+            SQLiteStatement s0 = mSQLiteDB.compileStatement(sql0);
+            for (DiabloBarcodeStock stock : stocks) {
+                s0.bindString(1, DiabloUtils.toString(stock.getFixPos()));
+                s0.bindString(2, DiabloUtils.toString(stock.getCSFixPos()));
+                s0.bindString(3, DiabloUtils.toString(stock.getFix()));
+                s0.bindString(4, DiabloUtils.toString(shop));
+                s0.bindString(5, DiabloUtils.toString(stock.getOrderId()));
+                s0.execute();
+                s0.clearBindings();
+            }
+
+            mSQLiteDB.setTransactionSuccessful();
+        } finally {
+            mSQLiteDB.endTransaction();
+        }
+        // mSQLiteDB.endTransaction();
+    }
+
 
     public void addBase(Integer shop, Integer type) {
         ContentValues v = new ContentValues();
