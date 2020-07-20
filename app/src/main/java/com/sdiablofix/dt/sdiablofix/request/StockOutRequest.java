@@ -40,7 +40,7 @@ public class StockOutRequest {
             StockOutNote note = stock.getStockOutNotes().get(0);
             for(StockOutNote n: out.getStockOutNotes()) {
                 if (n.getColor().equals(note.getColor()) && n.getSize().equals(note.getSize())) {
-                    n.reject += n.getReject();
+                    n.reject += note.getReject();
                     found = true;
                     break;
                 }
@@ -285,7 +285,7 @@ public class StockOutRequest {
         private Integer color;
         @SerializedName("size")
         private String size;
-        @SerializedName("reject_count")
+        @SerializedName("count")
         private Integer reject;
 
         private StockOutNote(Integer color, String size, Integer reject) {
