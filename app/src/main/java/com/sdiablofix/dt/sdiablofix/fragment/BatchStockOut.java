@@ -702,7 +702,7 @@ public class BatchStockOut extends Fragment {
                                 request.addStock(out);
                             }
 
-                            mStockBase.setShouldPay(shouldPay);
+                            mStockBase.setShouldPay(-shouldPay);
 
                             mButtons.get(R.id.stock_out_save).disable();
                             makeToast(getContext(), "操作成功，请等待操作结果", Toast.LENGTH_LONG);
