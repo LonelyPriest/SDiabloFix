@@ -36,7 +36,7 @@ import com.sdiablofix.dt.sdiablofix.entity.DiabloEmployee;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloFirm;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloSizeGroup;
-import com.sdiablofix.dt.sdiablofix.entity.DiabloType;
+// import com.sdiablofix.dt.sdiablofix.entity.DiabloType;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloUser;
 import com.sdiablofix.dt.sdiablofix.response.LoginResponse;
 import com.sdiablofix.dt.sdiablofix.response.LoginUserInfoResponse;
@@ -474,41 +474,43 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, "success to get brand");
                 DiabloProfile.instance().setBrands(response.body());
                 Message message = Message.obtain(mLoginHandler);
-                message.what = 80;
+                // message.what = 80;
+                message.what = 90;
                 message.sendToTarget();
             }
 
             @Override
             public void onFailure(Call<List<DiabloBrand>> call, Throwable t) {
                 Message message = Message.obtain(mLoginHandler);
-                message.what = 81;
-                message.sendToTarget();
-            }
-        });
-    }
-
-    private void getType(){
-        // WGoodClient.resetClient();
-        GoodInterface face = GoodClient.getClient().create(GoodInterface.class);
-        Call<List<DiabloType>> call = face.listType(DiabloProfile.instance().getToken());
-        call.enqueue(new Callback<List<DiabloType>>() {
-            @Override
-            public void onResponse(Call<List<DiabloType>> call, Response<List<DiabloType>> response) {
-                Log.d(LOG_TAG, "success to get type");
-                DiabloProfile.instance().setDiabloTypes(response.body());
-                Message message = Message.obtain(mLoginHandler);
-                message.what = 90;
-                message.sendToTarget();
-            }
-
-            @Override
-            public void onFailure(Call<List<DiabloType>> call, Throwable t) {
-                Message message = Message.obtain(mLoginHandler);
+                // message.what = 81;
                 message.what = 91;
                 message.sendToTarget();
             }
         });
     }
+
+//    private void getType(){
+//        // WGoodClient.resetClient();
+//        GoodInterface face = GoodClient.getClient().create(GoodInterface.class);
+//        Call<List<DiabloType>> call = face.listType(DiabloProfile.instance().getToken());
+//        call.enqueue(new Callback<List<DiabloType>>() {
+//            @Override
+//            public void onResponse(Call<List<DiabloType>> call, Response<List<DiabloType>> response) {
+//                Log.d(LOG_TAG, "success to get type");
+//                DiabloProfile.instance().setDiabloTypes(response.body());
+//                Message message = Message.obtain(mLoginHandler);
+//                message.what = 90;
+//                message.sendToTarget();
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<DiabloType>> call, Throwable t) {
+//                Message message = Message.obtain(mLoginHandler);
+//                message.what = 91;
+//                message.sendToTarget();
+//            }
+//        });
+//    }
 
     private void getFirm() {
         // FirmClient.resetClient();
@@ -588,9 +590,9 @@ public class LoginActivity extends AppCompatActivity {
                     case 60: // brand
                         activity.getBrand();
                         break;
-                    case 80: // stock type
-                        activity.getType();
-                        break;
+//                    case 80: // stock type
+//                        activity.getType();
+//                        break;
                     case 90: // firm
                         activity.getFirm();
                         break;

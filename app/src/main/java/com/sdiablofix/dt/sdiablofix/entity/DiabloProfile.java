@@ -98,7 +98,7 @@ public class DiabloProfile {
     private List<DiabloBrand> mBrands = new ArrayList<>();
 
     // type
-    private List<DiabloType> mDiabloTypes = new ArrayList<>();
+    // private List<DiabloType> mDiabloTypes = new ArrayList<>();
 
     // firm
     private List<DiabloFirm> mFirms = new ArrayList<>();
@@ -159,10 +159,10 @@ public class DiabloProfile {
             mBrands.clear();
         }
 
-        // types
-        if (null != mDiabloTypes) {
-            mDiabloTypes.clear();
-        }
+//        // types
+//        if (null != mDiabloTypes) {
+//            mDiabloTypes.clear();
+//        }
 
         // firms
         clearFirms();
@@ -639,50 +639,50 @@ public class DiabloProfile {
     /**
      * types
      */
-    public void setDiabloTypes(List<DiabloType> types) {
-        for (DiabloType t: types) {
-            String py = DiabloUtils.toPinYinWithFirstCharacter(t.getName());
-            t.setPy(py);
-            mDiabloTypes.add(t);
-        }
-        // this.mDiabloTypes = new ArrayList<>(types);
-    }
+//    public void setDiabloTypes(List<DiabloType> types) {
+//        for (DiabloType t: types) {
+//            String py = DiabloUtils.toPinYinWithFirstCharacter(t.getName());
+//            t.setPy(py);
+//            mDiabloTypes.add(t);
+//        }
+//        // this.mDiabloTypes = new ArrayList<>(types);
+//    }
 
-    public void addDiabloType(DiabloType type) {
-        if (null == getDiabloType(type.getId())) {
-            String py = DiabloUtils.toPinYinWithFirstCharacter(type.getName());
-            type.setPy(py);
-            this.mDiabloTypes.add(0, type);
-        }
-    }
+//    public void addDiabloType(DiabloType type) {
+//        if (null == getDiabloType(type.getId())) {
+//            String py = DiabloUtils.toPinYinWithFirstCharacter(type.getName());
+//            type.setPy(py);
+//            this.mDiabloTypes.add(0, type);
+//        }
+//    }
 
-    public List<DiabloType> getDiabloTypes() {
-        return mDiabloTypes;
-    }
+//    public List<DiabloType> getDiabloTypes() {
+//        return mDiabloTypes;
+//    }
 
-    public DiabloType getDiabloType(Integer typeId) {
-        DiabloType type = null;
-        for (DiabloType t: mDiabloTypes) {
-            if (t.getId().equals(typeId)) {
-                type = t;
-                break;
-            }
-        }
+//    public DiabloType getDiabloType(Integer typeId) {
+//        DiabloType type = null;
+//        for (DiabloType t: mDiabloTypes) {
+//            if (t.getId().equals(typeId)) {
+//                type = t;
+//                break;
+//            }
+//        }
+//
+//        return type;
+//    }
 
-        return type;
-    }
-
-    public DiabloType getDiabloType(String name) {
-        DiabloType type = null;
-        for (DiabloType t: mDiabloTypes) {
-            if (t.getName().equals(name)) {
-                type = t;
-                break;
-            }
-        }
-
-        return type;
-    }
+//    public DiabloType getDiabloType(String name) {
+//        DiabloType type = null;
+//        for (DiabloType t: mDiabloTypes) {
+//            if (t.getName().equals(name)) {
+//                type = t;
+//                break;
+//            }
+//        }
+//
+//        return type;
+//    }
 
     /**
      * firms
