@@ -480,7 +480,7 @@ public class DiabloProfile {
 
         return null == found ? new DiabloColor() : found;
     }
-
+    
     public final DiabloColor getColorByBarcode(Integer barcode) {
         if (DiabloEnum.DIABLO_FREE_COLOR.equals(barcode)) {
             return new DiabloColor();

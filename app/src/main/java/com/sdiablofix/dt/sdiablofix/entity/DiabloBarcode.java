@@ -25,21 +25,29 @@ public class DiabloBarcode {
 
     public void correctBarcode(String origin) {
         if (DiabloEnum.DIABLO_CONFIG_YES.equals(mAuto)) {
-            if (origin.startsWith("1")) {
-                mCorrect = origin;
-                mCut = origin.substring(0, origin.length() - DiabloEnum.DIABLO_BARCODE_LENGTH_OF_COLOR_SIZE);
-            }
-            else if (origin.startsWith("00")) {
+            if (origin.length() == 10) {
                 mCorrect = origin.substring(1);
                 mCut = origin;
-            }
-            else if (origin.startsWith("01") && origin.length() > 14) {
-                mCorrect = origin.substring(1);
-                mCut = origin.substring(1, origin.length() - DiabloEnum.DIABLO_EXT_BARCODE_LENGTH_OF_COLOR_SIZE);
             } else {
                 mCorrect = origin;
-                mCut = origin;
+                mCut = origin.substring(0, DiabloEnum.DIABLO_BARCODE_LENGTH);
             }
+
+//            if (origin.startsWith("1")) {
+//                mCorrect = origin;
+//                mCut = origin.substring(0, origin.length() - DiabloEnum.DIABLO_BARCODE_LENGTH_OF_COLOR_SIZE);
+//            }
+//            else if (origin.startsWith("00")) {
+//                mCorrect = origin.substring(1);
+//                mCut = origin;
+//            }
+//            else if (origin.startsWith("01") && origin.length() > 14) {
+//                mCorrect = origin.substring(1);
+//                mCut = origin.substring(1, origin.length() - DiabloEnum.DIABLO_EXT_BARCODE_LENGTH_OF_COLOR_SIZE);
+//            } else {
+//                mCorrect = origin;
+//                mCut = origin;
+//            }
         } else {
             if (origin.startsWith("00")) {
                 mCorrect = origin.substring(1);

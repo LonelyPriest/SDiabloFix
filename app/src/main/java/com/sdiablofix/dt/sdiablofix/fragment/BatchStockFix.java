@@ -307,9 +307,39 @@ public class BatchStockFix extends Fragment {
         } else {
             String colorSize = stock.getCorrectBarcode().substring(
                 stock.getBarcode().length(), stock.getCorrectBarcode().length());
-            Integer colorBarcode = DiabloUtils.toInteger(colorSize.substring(0, 3));
-            Integer sizeIndex = DiabloUtils.toInteger(colorSize.substring(3, colorSize.length()));
-            DiabloColor color = DiabloProfile.instance().getColorByBarcode(colorBarcode);
+
+            Integer colorLength = 0;
+            DiabloColor color = null;
+            if (colorSize.length() == DiabloEnum.DIABLO_BARCODE_LENGTH_OF_COLOR_SIZE) {
+                colorLength = 3;
+            } else if(colorSize.length() == DiabloEnum.DIABLO_EXT_BARCODE_LENGTH_OF_COLOR_SIZE) {
+                if (colorSize.startsWith("0")) {
+                    colorLength = 3;
+                } else {
+                    // try color first
+                    color = DiabloProfile.instance().getColorByBarcode(DiabloUtils.toInteger(colorSize.substring(0, 4)));
+                    if (null != color) {
+                        colorLength = 4;
+                        // try size more than 99
+//                        if (DiabloUtils.toInteger(
+//                            colorSize.substring(3, colorSize.length())) > DiabloEnum.DIABLO_SIZE_TO_BARCODE.length) {
+//                            colorLength = 4;
+//                        } else {
+//                            // size first, only one merchant's color more than 999
+//                            colorLength = 3;
+//                        }
+
+                    } else  {
+                        colorLength = 3;
+                    }
+                }
+            }
+
+            Integer colorBarcode = DiabloUtils.toInteger(colorSize.substring(0, colorLength));
+            Integer sizeIndex = DiabloUtils.toInteger(colorSize.substring(colorLength, colorSize.length()));
+            if (null == color) {
+                color = DiabloProfile.instance().getColorByBarcode(colorBarcode);
+            }
             stock.setColor(color.getColorId());
             if (sizeIndex == 0) {
                 stock.setSize(DiabloEnum.DIABLO_FREE_SIZE);

@@ -30,6 +30,7 @@ public class DiabloEnum {
     public static final long DAY_SECONDS = 86400;
     public static final Integer DIABLO_BARCODE_LENGTH_OF_COLOR_SIZE = 5;
     public static final Integer DIABLO_EXT_BARCODE_LENGTH_OF_COLOR_SIZE = 6;
+    public static final Integer DIABLO_BARCODE_LENGTH = 9;
 
     public static final String DIABLO_CONFIG_YES = "1";
     public static final String DIABLO_CONFIG_NO  = "0";
