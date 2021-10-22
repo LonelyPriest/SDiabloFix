@@ -29,8 +29,13 @@ public class DiabloBarcode {
                 mCorrect = origin.substring(1);
                 mCut = origin;
             } else {
-                mCorrect = origin;
-                mCut = origin.substring(0, DiabloEnum.DIABLO_BARCODE_LENGTH);
+                if (origin.startsWith("0")) {
+                    mCorrect = origin.substring(1);
+                    mCut = origin.substring(1, DiabloEnum.DIABLO_BARCODE_LENGTH + 1);
+                } else {
+                    mCorrect = origin;
+                    mCut = origin.substring(0, DiabloEnum.DIABLO_BARCODE_LENGTH);
+                }
             }
 
 //            if (origin.startsWith("1")) {
