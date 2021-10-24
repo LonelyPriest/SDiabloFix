@@ -390,8 +390,7 @@ public class BatchStockOut extends Fragment {
                     colorLength = 3;
                 } else {
                     // try color first
-                    color = DiabloProfile.instance().getColorByBarcode(
-                        DiabloUtils.toInteger(colorSize.substring(0, colorLength)));
+                    color = DiabloProfile.instance().getColorByBarcode(DiabloUtils.toInteger(colorSize.substring(0, 4)));
                     if (null != color) {
                         colorLength = 4;
                     } else  {
