@@ -49,6 +49,10 @@ public class DiabloError {
             mErrors.put(1107, r.getString(R.string.login_no_user_fire));
             mErrors.put(1199, r.getString(R.string.login_out_of_service));
 
+            mErrors.put(2014, r.getString(R.string.empty_barcode_stock));
+            mErrors.put(2023, r.getString(R.string.both_ctype_and_stock_not_bind));
+            mErrors.put(2024, r.getString(R.string.both_ctype_and_type_not_bind));
+
             mErrors.put(200, r.getString(R.string.failed_to_get_employee));
             mErrors.put(201, r.getString(R.string.failed_to_get_base_setting));
             mErrors.put(203, r.getString(R.string.failed_to_get_color));

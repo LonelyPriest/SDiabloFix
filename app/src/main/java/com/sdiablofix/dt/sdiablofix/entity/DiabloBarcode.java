@@ -25,19 +25,24 @@ public class DiabloBarcode {
 
     public void correctBarcode(String origin) {
         if (DiabloEnum.DIABLO_CONFIG_YES.equals(mAuto)) {
-            if (origin.length() == 10) {
-                mCorrect = origin.substring(1);
-                mCut = origin;
-            } else if (origin.length() == 13) {
-                mCorrect = origin.substring(1);
+            if (origin.length() < 10) {
+                mCorrect = origin;
                 mCut = origin;
             } else {
-                if (origin.startsWith("0")) {
+                if (origin.length() == 10) {
                     mCorrect = origin.substring(1);
-                    mCut = origin.substring(1, DiabloEnum.DIABLO_BARCODE_LENGTH + 1);
+                    mCut = origin;
+                } else if (origin.length() == 13) {
+                    mCorrect = origin.substring(1);
+                    mCut = origin;
                 } else {
-                    mCorrect = origin;
-                    mCut = origin.substring(0, DiabloEnum.DIABLO_BARCODE_LENGTH);
+                    if (origin.startsWith("0")) {
+                        mCorrect = origin.substring(1);
+                        mCut = origin.substring(1, DiabloEnum.DIABLO_BARCODE_LENGTH + 1);
+                    } else {
+                        mCorrect = origin;
+                        mCut = origin.substring(0, DiabloEnum.DIABLO_BARCODE_LENGTH);
+                    }
                 }
             }
         } else {

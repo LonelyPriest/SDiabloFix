@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/Users/buxianhui/Develop/SDiabloFix/lib-zxing/build/intermediates/res/merged/release/layout-v21/notification_action.xml",
+        "source": "/Users/buxianhui/.android/build-cache/4314af05f9b48e8ba53c036d0c6904d7c113ae4e/output/res/layout-v21/notification_action.xml"
+    },
+    {
+        "merged": "/Users/buxianhui/Develop/SDiabloFix/lib-zxing/build/intermediates/res/merged/release/layout-v21/notification_template_custom_big.xml",
+        "source": "/Users/buxianhui/.android/build-cache/4314af05f9b48e8ba53c036d0c6904d7c113ae4e/output/res/layout-v21/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "/Users/buxianhui/Develop/SDiabloFix/lib-zxing/build/intermediates/res/merged/release/layout-v21/notification_template_icon_group.xml",
+        "source": "/Users/buxianhui/.android/build-cache/4314af05f9b48e8ba53c036d0c6904d7c113ae4e/output/res/layout-v21/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "/Users/buxianhui/Develop/SDiabloFix/lib-zxing/build/intermediates/res/merged/release/layout-v21/notification_action_tombstone.xml",
+        "source": "/Users/buxianhui/.android/build-cache/4314af05f9b48e8ba53c036d0c6904d7c113ae4e/output/res/layout-v21/notification_action_tombstone.xml"
+    }
+]

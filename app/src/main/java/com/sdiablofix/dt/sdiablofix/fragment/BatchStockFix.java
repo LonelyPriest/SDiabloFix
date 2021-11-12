@@ -4,16 +4,19 @@ package com.sdiablofix.dt.sdiablofix.fragment;
 import static com.sdiablofix.dt.sdiablofix.utils.DiabloUtils.addCell;
 import static com.sdiablofix.dt.sdiablofix.utils.DiabloUtils.makeToast;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -59,6 +62,9 @@ import com.sdiablofix.dt.sdiablofix.utils.DiabloEnum;
 import com.sdiablofix.dt.sdiablofix.utils.DiabloError;
 import com.sdiablofix.dt.sdiablofix.utils.DiabloUtils;
 import com.sdiablofix.dt.sdiablofix.utils.ScannerInterface;
+import com.uuzuche.lib_zxing.activity.CaptureActivity;
+import com.uuzuche.lib_zxing.activity.CodeUtils;
+import com.uuzuche.lib_zxing.activity.ZXingLibrary;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -70,6 +76,7 @@ import retrofit2.Response;
 
 public class BatchStockFix extends Fragment {
     private final String LOG_TAG = "BatchStockFix:";
+    private final int REQUEST_CODE = 0xff;
     private DiabloShop mCurrentShop;
     private DiabloBigType mCurrentBigType;
     private String [] mTitles;
@@ -80,6 +87,8 @@ public class BatchStockFix extends Fragment {
     private BroadcastReceiver mIDataScanReceiver;
     private boolean mRegistered = false;
 
+    /*phone scanner*/
+    Intent mPhoneIntent;
 
     private TableLayout mTable;
     private TableRow mCurrentRow;
@@ -135,7 +144,9 @@ public class BatchStockFix extends Fragment {
         mButtons.put(R.id.stock_fix_save, new DiabloButton(getContext(), R.id.stock_fix_save));
         mButtons.get(R.id.stock_fix_save).disable();
 
-        initIDataScanner();
+        // initIDataScanner();
+        mPhoneIntent = new Intent(getActivity(), CaptureActivity.class);
+        ZXingLibrary.initDisplayOpinion(getContext());
     }
 
     @Override
@@ -196,7 +207,9 @@ public class BatchStockFix extends Fragment {
         init();
 
 //        String device = DiabloProfile.instance().getConfig(
-//            DiabloEnum.DIABLO_SCANNER_DEVICE, DiabloEnum.DIABLO_DEFAULT_SCANNER_DEVICE);
+//        DiabloEnum.DIABLO_SCANNER_DEVICE, DiabloEnum.DIABLO_DEFAULT_SCANNER_DEVICE);
+
+        initPhoneScanner();
         return view;
     }
 
@@ -243,6 +256,59 @@ public class BatchStockFix extends Fragment {
         mCurrentPage = 1;
 
         initTitle();
+    }
+
+    private void initPhoneScanner() {
+        mBarCodeScanView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
+                        requestPermissions(new String[]{Manifest.permission.CAMERA},1);
+                } else {
+                    startActivityForResult(mPhoneIntent, REQUEST_CODE);
+                }
+
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1:
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startActivityForResult(mPhoneIntent, REQUEST_CODE);
+                }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE) {
+            if (null != data) {
+                Bundle bundle = data.getExtras();
+                if (bundle == null) {
+                    return;
+                }
+                if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
+                    String scanResult = bundle.getString(CodeUtils.RESULT_STRING);
+                    mBarCodeScanView.setText(scanResult);
+                    mBarCodeScanView.invalidate();
+                    mBarcode.correctBarcode(mBarCodeScanView.getText().toString());
+
+                    Integer index = check_exist(mBarcode);
+                    if (!index.equals(DiabloEnum.INVALID_INDEX)) {
+                        start_check_direct(new DiabloBarcodeStock(mBarcodeStocks.get(index)));
+                    } else {
+                        start_check_backend();
+                    }
+                    // Toast.makeText(getContext(), "解析结果:" + result, Toast.LENGTH_LONG).show();
+                } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
+                    DiabloUtils.makeToast(getContext(), "解码失败");
+                }
+            }
+        }
     }
 
     private void initIDataScanner() {
@@ -373,13 +439,18 @@ public class BatchStockFix extends Fragment {
                 Log.d(LOG_TAG, "response = " + response.toString());
                 if (!response.isSuccessful()) {
                     DiabloUtils.error_alarm(getContext(), 9903, R.raw.wire_charging_start);
-                }
-
-                DiabloBarcodeStock stock = response.body().getBarcodeStock();
-                if (null == stock.getStyleNumber()) {
-                    DiabloUtils.error_alarm(getContext(), 9901, R.raw.europa);
                 } else {
-                    start_check_direct(stock);
+                    GetStockByBarcodeResponse stockBody = response.body();
+                    if (stockBody.getCode().equals(DiabloEnum.SUCCESS)) {
+                        DiabloBarcodeStock stock = stockBody.getBarcodeStock();
+//                    if (null == stock.getStyleNumber()) {
+//                        DiabloUtils.error_alarm(getContext(), 9901, R.raw.europa);
+//                    } else {
+                        start_check_direct(stock);
+                        // }
+                    } else {
+                        DiabloUtils.error_alarm(getContext(), stockBody.getCode(), R.raw.europa);
+                    }
                 }
             }
 

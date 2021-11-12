@@ -99,6 +99,8 @@
   <string name="reject_with_different_firm">同一单内不允许不同厂商退货，请核对</string>
   <string name="reject_with_empty_firm">该货品无厂商，无法退货</string>
   <string name="reject_with_empty_price">该货品无进货价，无法退货</string>
+  <string name="both_ctype_and_stock_not_bind">该货品没有绑定相应货品大类，请核对该货品信息</string>
+  <string name="both_ctype_and_type_not_bind">没有绑定相应货品大类与品类，请先绑定</string>
 
   <string name="failed_to_get_user_info">获取用户权限信息失败</string>
   <string name="failed_to_get_employee">获取员工信息失败</string>
