@@ -35,6 +35,12 @@
             app:showAsAction="ifRoom|withText"/>
 
         <group android:checkableBehavior="single">
+
+          <item android:id="@+id/fix_device_mode"
+          android:title="@string/fix_device"
+          android:icon="@drawable/ic_directions_subway_black_24dp"
+          app:showAsAction="ifRoom|withText"/>
+
           <item android:id="@+id/fix_clear_draft"
                 android:title="@string/clear_draft"
                 android:icon="@drawable/ic_clear_all_black_24dp"

@@ -48,6 +48,7 @@ import com.sdiablofix.dt.sdiablofix.entity.DiabloBarcode;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBarcodeStock;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBigType;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloColor;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloDevice;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloShop;
 import com.sdiablofix.dt.sdiablofix.request.GetStockByBarcodeRequest;
@@ -80,6 +81,9 @@ public class BatchStockFix extends Fragment {
     private DiabloShop mCurrentShop;
     private DiabloBigType mCurrentBigType;
     private String [] mTitles;
+
+    private String [] mFixDevice;
+    private Integer mCurrentDevice = 0;
 
     /*iData scanner*/
     private ScannerInterface mIDataBarcodeScan;
@@ -136,6 +140,18 @@ public class BatchStockFix extends Fragment {
         mCurrentBigType = DiabloProfile.instance().getBigTypes().get(0);
 
         mTitles = getResources().getStringArray(R.array.thead_fix);
+        mFixDevice = getResources().getStringArray(R.array.fix_device);
+
+        String deviceId = DiabloUtils.getAndroidId(getContext());
+
+        DiabloDevice device = DiabloDBManager.instance().getDevice(deviceId);
+        if (null == device ){
+            if (null != deviceId && !"".equals(deviceId)) {
+                DiabloDBManager.instance().addDevice(deviceId, 0);
+            }
+        } else {
+            mCurrentDevice = device.getDevice();
+        }
 
         String autoBarcode = DiabloProfile.instance().getConfig(DiabloEnum.SETTING_AUTO_BARCODE, DiabloEnum.DIABLO_CONFIG_YES);
 
@@ -208,8 +224,11 @@ public class BatchStockFix extends Fragment {
 
 //        String device = DiabloProfile.instance().getConfig(
 //        DiabloEnum.DIABLO_SCANNER_DEVICE, DiabloEnum.DIABLO_DEFAULT_SCANNER_DEVICE);
-
-        initPhoneScanner();
+        if (0 == mCurrentDevice) {
+            initIDataScanner();
+        } else {
+            initPhoneScanner();
+        }
         return view;
     }
 
@@ -892,6 +911,21 @@ public class BatchStockFix extends Fragment {
                             makeToast(getContext(), "清除草稿成功", Toast.LENGTH_LONG);
                         }
                     }).create();
+                break;
+            case R.id.fix_device_mode:
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setIcon(R.drawable.ic_directions_subway_black_24dp);
+                builder.setTitle(getContext().getResources().getString(R.string.select_fix_device));
+                builder.setSingleChoiceItems(mFixDevice, 0,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            mCurrentDevice = which;
+                            // initTitle();
+                        }
+                    });
+                builder.create().show();
                 break;
 //            case R.id.fix_logout:
 //                ((MainActivity)getActivity()).logout();

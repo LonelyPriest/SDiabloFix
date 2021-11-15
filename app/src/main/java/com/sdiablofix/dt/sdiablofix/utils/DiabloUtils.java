@@ -10,6 +10,7 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +45,12 @@ public class DiabloUtils {
         Calendar calendar = Calendar.getInstance();
         return mDatetimeFormat.format(calendar.getTime()).trim();
     }
+
+    // Android Id
+    public static String getAndroidId(Context context) {
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
 
     public static String toString(Float value){
         if (value == Math.round(value)){

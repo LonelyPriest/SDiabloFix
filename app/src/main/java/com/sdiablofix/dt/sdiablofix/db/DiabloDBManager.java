@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBarcodeStock;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloDevice;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloUser;
 import com.sdiablofix.dt.sdiablofix.request.StockFixRequest;
 import com.sdiablofix.dt.sdiablofix.request.StockOutRequest;
@@ -43,6 +44,45 @@ public class DiabloDBManager {
 
     private DiabloDBManager() {
 
+    }
+
+    public void addDevice(String uuid, Integer device) {
+        ContentValues v = new ContentValues();
+        v.put("uuid", uuid);
+        v.put("device", device);
+        mSQLiteDB.insert(DiabloEnum.W_DEVICE, null, v);
+    }
+
+    public DiabloDevice getDevice(String uuid){
+        String [] fields = {"uuid", "device"};
+        String [] args = {uuid};
+        Cursor cursor = mSQLiteDB.query(DiabloEnum.W_DEVICE, fields, "uuid=?", args, null, null, null);
+
+        if (cursor.moveToFirst()){
+            DiabloDevice device = new DiabloDevice();
+            device.setUuid(cursor.getString(cursor.getColumnIndex("uuid")));
+            device.setDevice(cursor.getInt(cursor.getColumnIndex("device")));
+            cursor.close();
+            return device;
+        }
+
+        return null;
+    }
+
+    public void updateDevice(String uuid, Integer device) {
+        mSQLiteDB.beginTransaction();
+        try {
+            String sql = "update " + DiabloEnum.W_DEVICE + " set device=? where uuid=?";
+            SQLiteStatement s = mSQLiteDB.compileStatement(sql);
+            s.bindString(1, uuid);
+            s.bindString(2, DiabloUtils.toString(device));
+            s.execute();
+            s.clearBindings();
+
+            mSQLiteDB.setTransactionSuccessful();
+        } finally {
+            mSQLiteDB.endTransaction();
+        }
     }
 
     public void addUser(String name, String password) {

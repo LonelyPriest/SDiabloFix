@@ -35,6 +35,12 @@ public class DiabloDBOpenHelper extends SQLiteOpenHelper {
             + ", password text not null"
             + ", unique(name) ON CONFLICT REPLACE)";
 
+        String device = "create table if not exists device ("
+            + "_id integer primary key autoincrement"
+            + ", uuid text not null"
+            + ", device text not null"
+            + ", unique(uuid) ON CONFLICT REPLACE)";
+
         String fixDetail = "create table if not exists d_fix ("
             + "_id integer primary key autoincrement"
 
@@ -101,6 +107,7 @@ public class DiabloDBOpenHelper extends SQLiteOpenHelper {
             + ", datetime text not null"
             + ", unique(shop) ON CONFLICT REPLACE)";
 
+        db.execSQL(device);
         db.execSQL(user);
         db.execSQL(fixDetail);
         db.execSQL(stockOutDetail);
@@ -109,11 +116,13 @@ public class DiabloDBOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        String device = "drop table if exits device";
         String user = "drop table if exists user";
         String fix = "drop table if exists d_fix";
         String out = "drop table if exists stock_out";
         String base = "drop table if exists fix_base";
 
+        db.execSQL(device);
         db.execSQL(user);
         db.execSQL(fix);
         db.execSQL(out);

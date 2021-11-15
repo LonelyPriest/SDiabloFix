@@ -21,6 +21,11 @@
     <!--<item>批退</item>-->
   </string-array>
 
+  <string-array name="fix_device">
+    <item>盘点机</item>
+    <item>手机</item>
+  </string-array>
+
   <string-array name="thead_fix">
     <item>序号</item>
     <item>条码</item>
@@ -45,12 +50,13 @@
   <string name="save">保存</string>
   <string name="draft">草稿</string>
   <string name="clear_draft">清除草稿</string>
+  <string name="fix_device">设备选择</string>
   <string name="clear_firm">重置厂商</string>
   <string name="setting">设置</string>
 
   <string name="select_shop">选择店铺</string>
   <string name="select_firm">选择厂商</string>
-  <string name="select_good_ctype">货品大类</string>
+  <string name="select_fix_device">盘点设备</string>
   <string name="logout">注销</string>
   <string name="login_clear">清除</string>
 

@@ -61,6 +61,7 @@ public class DiabloEnum {
     /**
      * DB table
      */
+    public static final String W_DEVICE = "device";
     public static final String W_USER = "user";
     public static final String D_FIX  = "d_fix";
     public static final String B_FIX  = "fix_base";
