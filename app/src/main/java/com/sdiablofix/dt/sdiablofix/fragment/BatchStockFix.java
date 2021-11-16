@@ -82,9 +82,6 @@ public class BatchStockFix extends Fragment {
     private DiabloBigType mCurrentBigType;
     private String [] mTitles;
 
-    private String [] mFixDevice;
-    private Integer mCurrentDevice = 0;
-
     /*iData scanner*/
     private ScannerInterface mIDataBarcodeScan;
     private IntentFilter mIDataScannerResultIntentFilter;
@@ -140,18 +137,6 @@ public class BatchStockFix extends Fragment {
         mCurrentBigType = DiabloProfile.instance().getBigTypes().get(0);
 
         mTitles = getResources().getStringArray(R.array.thead_fix);
-        mFixDevice = getResources().getStringArray(R.array.fix_device);
-
-        String deviceId = DiabloUtils.getAndroidId(getContext());
-
-        DiabloDevice device = DiabloDBManager.instance().getDevice(deviceId);
-        if (null == device ){
-            if (null != deviceId && !"".equals(deviceId)) {
-                DiabloDBManager.instance().addDevice(deviceId, 0);
-            }
-        } else {
-            mCurrentDevice = device.getDevice();
-        }
 
         String autoBarcode = DiabloProfile.instance().getConfig(DiabloEnum.SETTING_AUTO_BARCODE, DiabloEnum.DIABLO_CONFIG_YES);
 
@@ -224,7 +209,7 @@ public class BatchStockFix extends Fragment {
 
 //        String device = DiabloProfile.instance().getConfig(
 //        DiabloEnum.DIABLO_SCANNER_DEVICE, DiabloEnum.DIABLO_DEFAULT_SCANNER_DEVICE);
-        if (0 == mCurrentDevice) {
+        if (0 == DiabloDevice.instance().getDevice()) {
             initIDataScanner();
         } else {
             initPhoneScanner();
@@ -912,21 +897,6 @@ public class BatchStockFix extends Fragment {
                         }
                     }).create();
                 break;
-            case R.id.fix_device_mode:
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setIcon(R.drawable.ic_directions_subway_black_24dp);
-                builder.setTitle(getContext().getResources().getString(R.string.select_fix_device));
-                builder.setSingleChoiceItems(mFixDevice, 0,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            mCurrentDevice = which;
-                            // initTitle();
-                        }
-                    });
-                builder.create().show();
-                break;
 //            case R.id.fix_logout:
 //                ((MainActivity)getActivity()).logout();
 //                break;
@@ -1092,7 +1062,7 @@ public class BatchStockFix extends Fragment {
     public void onDestroy() {
         Log.d(LOG_TAG, "stockFix onDestroy...");
         super.onDestroy();
-        if (mRegistered) {
+        if (0 == DiabloDevice.instance().getDevice() && mRegistered && null != mIDataScanReceiver) {
             getContext().unregisterReceiver(mIDataScanReceiver);
         }
         mRegistered = false;
@@ -1230,11 +1200,14 @@ public class BatchStockFix extends Fragment {
         super.onHiddenChanged(hidden);
         if (!hidden) {
             DiabloUtils.hiddenKeyboard(getContext(), mBarCodeScanView);
-            getContext().registerReceiver(mIDataScanReceiver, mIDataScannerResultIntentFilter);
-            mRegistered = true;
-
+            if (0 == DiabloDevice.instance().getDevice() && !mRegistered && null != mIDataScanReceiver) {
+                getContext().registerReceiver(mIDataScanReceiver, mIDataScannerResultIntentFilter);
+                mRegistered = true;
+            }
         } else {
-            getContext().unregisterReceiver(mIDataScanReceiver);
+            if (0 == DiabloDevice.instance().getDevice() && mRegistered && null != mIDataScanReceiver) {
+                getContext().unregisterReceiver(mIDataScanReceiver);
+            }
             mRegistered = false;
         }
     }

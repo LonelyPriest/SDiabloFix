@@ -1,11 +1,13 @@
 package com.sdiablofix.dt.sdiablofix.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -27,6 +29,7 @@ import com.sdiablofix.dt.sdiablofix.client.GoodClient;
 import com.sdiablofix.dt.sdiablofix.client.LoginClient;
 import com.sdiablofix.dt.sdiablofix.client.StockClient;
 import com.sdiablofix.dt.sdiablofix.db.DiabloDBManager;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloDevice;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
 import com.sdiablofix.dt.sdiablofix.fragment.BatchStockFix;
 import com.sdiablofix.dt.sdiablofix.fragment.BatchStockOut;
@@ -50,6 +53,10 @@ public class MainActivity extends AppCompatActivity {
     private String[] mActivityTitles;
     private static SparseArray<NavigationTag> mNavTagMap = new SparseArray<>();
 
+    private String[] mFixDevice;
+    private Integer mCurrentDevice = 0;
+    private String mDeviceUuid;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +76,21 @@ public class MainActivity extends AppCompatActivity {
         mActivityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
         mNavTagMap.put(0, new NavigationTag(0, DiabloEnum.TAG_STOCK_FIX));
         mNavTagMap.put(1, new NavigationTag(1, DiabloEnum.TAG_STOCK_OUT));
+
+        mFixDevice = getResources().getStringArray(R.array.fix_device);
+        mDeviceUuid = DiabloUtils.getAndroidId(this);
+
+        if (null != mDeviceUuid && !"".equals(mDeviceUuid)) {
+            DiabloDBManager.instance().getDevice(DiabloDevice.instance(), mDeviceUuid);
+            mCurrentDevice = DiabloDevice.instance().getDevice();
+            if (DiabloEnum.INVALID_INDEX.equals(mCurrentDevice)) {
+                DiabloDevice.instance().setUuid(mDeviceUuid);
+                mCurrentDevice = 0;
+                DiabloDevice.instance().setDevice(mCurrentDevice);
+                DiabloDBManager.instance().addDevice(mDeviceUuid, mCurrentDevice);
+            }
+        }
+
 
 //        BottomNavigationBar bar = (BottomNavigationBar) findViewById(R.id.navigation);
 //        bar.setMode(BottomNavigationBar.MODE_FIXED);
@@ -123,6 +145,22 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.nav_stock_out:
                         selectMenuItem(1);
+                        break;
+                    case R.id.nav_device:
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setIcon(R.drawable.ic_directions_subway_black_24dp);
+                        builder.setTitle(getResources().getString(R.string.select_fix_device));
+                        builder.setSingleChoiceItems(mFixDevice, mCurrentDevice,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    mCurrentDevice = which;
+                                    DiabloDBManager.instance().updateDevice(mDeviceUuid, mCurrentDevice);
+                                    // initTitle();
+                                }
+                            });
+                        builder.create().show();
                         break;
                     case R.id.nav_logout:
                         logout();
@@ -296,6 +334,14 @@ public class MainActivity extends AppCompatActivity {
         StockClient.resetClient();
         GoodClient.resetClient();
         LoginClient.resetClient();
+    }
+
+    public String getDeviceUuid() {
+        return mDeviceUuid;
+    }
+
+    public Integer getCurrentDevice() {
+        return mCurrentDevice;
     }
 
     private class NavigationTag {

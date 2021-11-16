@@ -15,6 +15,10 @@
   </group>
 
   <group android:checkableBehavior="single" android:id="@+id/g3">
+    <item
+        android:id="@+id/nav_device"
+        android:icon="@drawable/ic_directions_subway_black_24dp"
+        android:title="@string/select_fix_device"/>
 
     <item
         android:id="@+id/nav_clear_draft"

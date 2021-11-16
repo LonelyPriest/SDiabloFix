@@ -53,20 +53,16 @@ public class DiabloDBManager {
         mSQLiteDB.insert(DiabloEnum.W_DEVICE, null, v);
     }
 
-    public DiabloDevice getDevice(String uuid){
+    public void getDevice(DiabloDevice device, String uuid){
         String [] fields = {"uuid", "device"};
         String [] args = {uuid};
         Cursor cursor = mSQLiteDB.query(DiabloEnum.W_DEVICE, fields, "uuid=?", args, null, null, null);
 
         if (cursor.moveToFirst()){
-            DiabloDevice device = new DiabloDevice();
             device.setUuid(cursor.getString(cursor.getColumnIndex("uuid")));
             device.setDevice(cursor.getInt(cursor.getColumnIndex("device")));
             cursor.close();
-            return device;
         }
-
-        return null;
     }
 
     public void updateDevice(String uuid, Integer device) {
@@ -74,8 +70,8 @@ public class DiabloDBManager {
         try {
             String sql = "update " + DiabloEnum.W_DEVICE + " set device=? where uuid=?";
             SQLiteStatement s = mSQLiteDB.compileStatement(sql);
-            s.bindString(1, uuid);
-            s.bindString(2, DiabloUtils.toString(device));
+            s.bindString(1, DiabloUtils.toString(device));
+            s.bindString(2, uuid);
             s.execute();
             s.clearBindings();
 

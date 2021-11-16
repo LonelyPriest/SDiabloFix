@@ -4,16 +4,19 @@ package com.sdiablofix.dt.sdiablofix.fragment;
 import static com.sdiablofix.dt.sdiablofix.utils.DiabloUtils.addCell;
 import static com.sdiablofix.dt.sdiablofix.utils.DiabloUtils.makeToast;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -44,6 +47,7 @@ import com.sdiablofix.dt.sdiablofix.entity.DiabloBarcode;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBarcodeStock;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloBigType;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloColor;
+import com.sdiablofix.dt.sdiablofix.entity.DiabloDevice;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloProfile;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloShop;
 import com.sdiablofix.dt.sdiablofix.entity.DiabloStockNote;
@@ -60,6 +64,9 @@ import com.sdiablofix.dt.sdiablofix.utils.DiabloEnum;
 import com.sdiablofix.dt.sdiablofix.utils.DiabloError;
 import com.sdiablofix.dt.sdiablofix.utils.DiabloUtils;
 import com.sdiablofix.dt.sdiablofix.utils.ScannerInterface;
+import com.uuzuche.lib_zxing.activity.CaptureActivity;
+import com.uuzuche.lib_zxing.activity.CodeUtils;
+import com.uuzuche.lib_zxing.activity.ZXingLibrary;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -88,6 +95,9 @@ public class BatchStockOut extends Fragment {
     private IntentFilter mIDataScannerResultIntentFilter;
     private BroadcastReceiver mIDataScanReceiver;
     private boolean mRegistered = false;
+
+    Intent mPhoneIntent;
+    private final int REQUEST_CODE = 0x11;
 
     private TableLayout mTable;
     private TableRow mCurrentRow;
@@ -139,7 +149,9 @@ public class BatchStockOut extends Fragment {
         mButtons.put(R.id.stock_out_save, new DiabloButton(getContext(), R.id.stock_out_save));
         mButtons.get(R.id.stock_out_save).disable();
 
-        initIDataScanner();
+        mPhoneIntent = new Intent(getActivity(), CaptureActivity.class);
+        ZXingLibrary.initDisplayOpinion(getContext());
+        // initIDataScanner();
     }
 
     @Override
@@ -197,6 +209,12 @@ public class BatchStockOut extends Fragment {
         });
 
         init();
+
+        if (0 == DiabloDevice.instance().getDevice()) {
+            initIDataScanner();
+        } else {
+            initPhoneScanner();
+        }
 
 //        String device = DiabloProfile.instance().getConfig(
 //            DiabloEnum.DIABLO_SCANNER_DEVICE, DiabloEnum.DIABLO_DEFAULT_SCANNER_DEVICE);
@@ -258,6 +276,53 @@ public class BatchStockOut extends Fragment {
         mCurrentPage = 1;
 
         initTitle();
+    }
+
+    private void initPhoneScanner() {
+        mBarCodeScanView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
+                    requestPermissions(new String[]{Manifest.permission.CAMERA},1);
+                } else {
+                    startActivityForResult(mPhoneIntent, REQUEST_CODE);
+                }
+
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1:
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startActivityForResult(mPhoneIntent, REQUEST_CODE);
+                }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE) {
+            if (null != data) {
+                Bundle bundle = data.getExtras();
+                if (bundle == null) {
+                    return;
+                }
+                if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
+                    String scanResult = bundle.getString(CodeUtils.RESULT_STRING);
+                    mBarCodeScanView.setText(scanResult);
+                    mBarCodeScanView.invalidate();
+                    mBarcode.correctBarcode(mBarCodeScanView.getText().toString());
+                    process_scan();
+                    // Toast.makeText(getContext(), "解析结果:" + result, Toast.LENGTH_LONG).show();
+                } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
+                    DiabloUtils.makeToast(getContext(), "解码失败");
+                }
+            }
+        }
     }
 
     private void initIDataScanner() {
@@ -961,10 +1026,10 @@ public class BatchStockOut extends Fragment {
     public void onDestroy() {
         Log.d(LOG_TAG, "stockOut onDestroy...");
         super.onDestroy();
-        if (mRegistered) {
-          getContext().unregisterReceiver(mIDataScanReceiver);
-      }
-       mRegistered = false;
+        if (0 == DiabloDevice.instance().getDevice() && mRegistered && null != mIDataScanReceiver) {
+            getContext().unregisterReceiver(mIDataScanReceiver);
+        }
+        mRegistered = false;
     }
 
     private Integer getFixStocksCount() {
@@ -1078,11 +1143,14 @@ public class BatchStockOut extends Fragment {
         super.onHiddenChanged(hidden);
         if (!hidden) {
             DiabloUtils.hiddenKeyboard(getContext(), mBarCodeScanView);
-            getContext().registerReceiver(mIDataScanReceiver, mIDataScannerResultIntentFilter);
-            mRegistered = true;
-
+            if (0 == DiabloDevice.instance().getDevice() && !mRegistered && null != mIDataScanReceiver) {
+                getContext().registerReceiver(mIDataScanReceiver, mIDataScannerResultIntentFilter);
+                mRegistered = true;
+            }
         } else {
-            getContext().unregisterReceiver(mIDataScanReceiver);
+            if (0 == DiabloDevice.instance().getDevice() && mRegistered && null != mIDataScanReceiver) {
+                getContext().unregisterReceiver(mIDataScanReceiver);
+            }
             mRegistered = false;
         }
     }

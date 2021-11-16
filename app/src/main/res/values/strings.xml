@@ -50,7 +50,8 @@
   <string name="save">保存</string>
   <string name="draft">草稿</string>
   <string name="clear_draft">清除草稿</string>
-  <string name="fix_device">设备选择</string>
+  <string name="select_good_ctype">货品大类</string>
+  <string name="fix_device">盘点设备</string>
   <string name="clear_firm">重置厂商</string>
   <string name="setting">设置</string>
 
